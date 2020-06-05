@@ -1,0 +1,10 @@
+CUST ID	CAPACITY	VEHICLE_NUMBER	DEMAND	0	1	2	3
+
+ 
+    0	200	25	0	0	dist	dist	dist
+    1	200	25	10	dist	0	dist	dist  
+    2	200	25	30        
+    3	200	25	10          
+    4	200	25	10          
+    5	200	25	10           
+       

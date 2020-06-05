@@ -2,7 +2,7 @@ import numpy as np
 from numpy.random import randint
 from random import random as rnd
 from random import gauss, randrange
-
+import pandas as pd
 # N camions => N 'individus'
 # Un individu : liste des clients visités dans l'ordre par x camions (où x < N)
 # une route : décode l'individu en [[4,5,2], [6,7], [10]] (Trois camions ont livré)
@@ -11,6 +11,9 @@ from random import gauss, randrange
 service_time = (1/6) # 10 min pour déposer le colis
 time_work = 8 #journée de travail du camionneur est de 8h
 
+instance = pd.read_csv('graphe.csv')
+n = instance.shape[1]
+distance_matrix = instance[[i] for i in range(4,n)] #prend la matrice des colonnes
 ''' Décodage d'un individu en route'''
 def ind2route(individual, instance):
     route = []
@@ -25,8 +28,8 @@ def ind2route(individual, instance):
         demand = instance['customer_%d' % customerID]['demand']
         updatedVehicleLoad = vehicleLoad + demand
         # Update elapsed time
-        returnTime = instance['distance_matrix'][customerID][0] #distance_matrix = distance entre i et j
-        updatedElapsedTime = elapsedTime + instance['distance_matrix'][lastCustomerID][customerID] + serviceTime + returnTime
+        returnTime = distance_matrix[customerID][0] #distance_matrix = distance entre i et j
+        updatedElapsedTime = elapsedTime + distance_matrix[lastCustomerID][customerID] + serviceTime + returnTime
         # Validate vehicle load and elapsed time
         if (updatedVehicleLoad <= vehicleCapacity) and (updatedElapsedTime <= time_work):
             # Add to current sub-route
@@ -39,7 +42,7 @@ def ind2route(individual, instance):
             # Initialize a new sub-route and add to it
             subRoute = [customerID]
             vehicleLoad = demand
-            elapsedTime = instance['distance_matrix'][0][customerID] + serviceTime
+            elapsedTime = distance_matrix[0][customerID] + serviceTime
         # Update last customer ID
         lastCustomerID = customerID
     if subRoute != []:
@@ -81,7 +84,7 @@ def evalVRPTW(individual, instance, unitCost=1.0, initCost=0):
         lastCustomerID = 0
         for customerID in subRoute:
             # Calculate section distance
-            distance = instance['distance_matrix'][lastCustomerID][customerID]
+            distance = distance_matrix[lastCustomerID][customerID]
             # Update sub-route distance
             subRouteDistance = subRouteDistance + distance
             # Calculate time cost
@@ -91,7 +94,7 @@ def evalVRPTW(individual, instance, unitCost=1.0, initCost=0):
             # Update last customer ID
             lastCustomerID = customerID
         # Calculate transport cost
-        subRouteDistance = subRouteDistance + instance['distance_matrix'][lastCustomerID][0]
+        subRouteDistance = subRouteDistance + distance_matrix[lastCustomerID][0]
         subRouteTranCost = initCost + unitCost * subRouteDistance
         # Update total cost
         totalCost = totalCost + subRouteTranCost
