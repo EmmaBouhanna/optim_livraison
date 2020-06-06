@@ -1,7 +1,5 @@
 import numpy as np
-from numpy.random import randint
-from random import random as rnd
-from random import gauss, randrange
+import random
 import pandas as pd
 # N camions => N 'individus'
 # Un individu : liste des clients visités dans l'ordre par x camions (où x < N)
@@ -13,9 +11,9 @@ time_work = 8 #journée de travail du camionneur est de 8h
 
 
 ''' Décodage d'un individu en route'''
-def ind2route(individual, instance):
+def ind2route(individual, instance, distance_matrix, serviceTime = service_time):
     route = []
-    vehicleCapacity = instance['vehicle_capacity']
+    vehicleCapacity = instance['vehicle_capacity'][0]
     # Initialize a sub-route
     subRoute = []
     vehicleLoad = 0
@@ -23,7 +21,7 @@ def ind2route(individual, instance):
     elapsedTime = 0
     for customerID in individual:
         # Update vehicle load
-        demand = instance['customer_%d' % customerID]['demand']
+        demand = instance['demand'][customerID]
         updatedVehicleLoad = vehicleLoad + demand
         # Update elapsed time
         returnTime = distance_matrix[customerID][0] #distance_matrix = distance entre i et j
@@ -46,8 +44,8 @@ def ind2route(individual, instance):
     if subRoute != []:
         # Save current sub-route before return if not empty
         route.append(subRoute)
-    if instance["max_vehicle"][0] > len(route):
-        print("Echec de la journée, tous les clients n'ont pas été livrés!")
+    # if instance["max_vehicle"][0] > len(route):
+    #     print("Echec de la journée, tous les clients n'ont pas été livrés!")
     return route
 
 ''' Pour afficher une route avec les allers-retours d'un camion'''
@@ -70,10 +68,10 @@ def printRoute(route, merge=False):
 
 '''Création du coût d'un parcours, qu'il faudra par la suite optimiser'''
 #unit_cost : on attribue aux camions un coût par unité de déplacement
-def evalVRPTW(individual, instance, unitCost=1.0, initCost=0):
+def evalVRPTW(individual, instance, distance_matrix, unitCost=1.0, initCost=0):
     #init_cost : cost to travel from the parking to the warehouse
     totalCost = 0
-    route = ind2route(individual, instance)
+    route = ind2route(individual, instance, distance_matrix)
     totalCost = 0
     for subRoute in route:
         subRouteTimeCost = 0
@@ -128,20 +126,23 @@ def mut_inverse_indexes(individual):
     return (individual, )
 
 '''Création de l'algorithme génétique (utilisation de la libraire deep tools)'''
-from deep import tools, creator, base
+from deap import tools, creator, base
 
-def run_vrptw(instance, unit_cost, init_cost, wait_cost, delay_cost, ind_size, pop_size, \
+def run_vrptw(instance, distance_matrix, unit_cost, init_cost, ind_size, pop_size, \
     cx_pb, mut_pb, n_gen):
+    #ind_size = le nombre de clients !
+    #cx_pb = probability of cross-over
+    #mut_pb = probability of a mutation
     creator.create("FitnessMax", base.Fitness, weights = (1.0,) ) #on prend des poids porsitifs car on veut maximiser fitness
     creator.create('Individual', list, fitness=creator.FitnessMax)
     toolbox = base.Toolbox()  # on initialise une instance de l'objet Toolbox
     toolbox.register('indexes', random.sample, range(1, ind_size + 1), ind_size) #on crée un générateur qui va les numéros des clients à livrer (codés de 1 à ind_size, à décoder éventuellement)
-    toolbox.register('Individual', tools.initIterate, creator.Individual, toolbox.indexes) #crée un individu en appelant la fonction random.sample(range(1,ind_size+1), ind_size)
+    toolbox.register('individual', tools.initIterate, creator.Individual, toolbox.indexes) #crée un individu en appelant la fonction random.sample(range(1,ind_size+1), ind_size)
     toolbox.register('population', tools.initRepeat, list, toolbox.individual) 
     pop = toolbox.population(n=pop_size) #on crée une population de m individus qui nous sert de départ pour l'algo génétique
 
     #évaluation du coût
-    toolbox.register('evaluate', eval_vrptw, instance=instance, unit_cost=unit_cost, init_cost=init_cost)
+    toolbox.register('evaluate', evalVRPTW, instance=instance, distance_matrix=distance_matrix, unitCost=unit_cost, initCost=init_cost)
 
     #sélection de k individus dans la population
     toolbox.register('select', tools.selRoulette)
@@ -155,7 +156,7 @@ def run_vrptw(instance, unit_cost, init_cost, wait_cost, delay_cost, ind_size, p
     print('start of evolution')
     fitnesses = list(map(toolbox.evaluate, pop))
     for ind, fit in zip(pop, fitnesses): #on stocke le coût pour chaque individu dans les atribus du creator Individual
-        ind.fitness.values = fit
+        ind.fitness.values = (fit,)
     print(f'Evaluated {len(pop)} individuals')
 
     # Begin the evolution
@@ -186,7 +187,7 @@ def run_vrptw(instance, unit_cost, init_cost, wait_cost, delay_cost, ind_size, p
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         fitnesses = map(toolbox.evaluate, invalid_ind)
         for ind, fit in zip(invalid_ind, fitnesses):
-            ind.fitness.values = fit
+            ind.fitness.values = (fit,)
         print(f'  Evaluated {len(invalid_ind)} individuals')
 
         # The population is entirely replaced by the offspring
@@ -196,5 +197,5 @@ def run_vrptw(instance, unit_cost, init_cost, wait_cost, delay_cost, ind_size, p
     best_ind = tools.selBest(pop, 1)[0] #returns a list containing the k best individuals among the population, here the best one
     print(f'Best individual: {best_ind}')
     print(f'Fitness: {best_ind.fitness.values[0]}')
-    print_route(ind2route(best_ind, instance))
+    printRoute(ind2route(best_ind, instance, distance_matrix))
     print(f'Total cost: {1 / best_ind.fitness.values[0]}')
