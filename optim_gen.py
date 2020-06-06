@@ -11,14 +11,15 @@ time_work = 8 #journée de travail du camionneur est de 8h
 
 
 ''' Décodage d'un individu en route'''
-def ind2route(individual, instance, distance_matrix, serviceTime = service_time):
+def ind2route(individual, instance, distance_matrix, initCost, serviceTime = service_time):
+    # init_cost = time to go from the garage to the warehouse and to come back
     route = []
     vehicleCapacity = instance['vehicle_capacity'][0]
     # Initialize a sub-route
     subRoute = []
     vehicleLoad = 0
     lastCustomerID = 0
-    elapsedTime = 0
+    elapsedTime = 2*initCost
     for customerID in individual:
         # Update vehicle load
         demand = instance['demand'][customerID]
@@ -44,8 +45,8 @@ def ind2route(individual, instance, distance_matrix, serviceTime = service_time)
     if subRoute != []:
         # Save current sub-route before return if not empty
         route.append(subRoute)
-    # if instance["max_vehicle"][0] > len(route):
-    #     print("Echec de la journée, tous les clients n'ont pas été livrés!")
+    if instance["max_vehicle"][0] < len(route):
+        print("Echec de la journée, tous les clients n'ont pas été livrés!")
     return route
 
 ''' Pour afficher une route avec les allers-retours d'un camion'''
@@ -67,11 +68,11 @@ def printRoute(route, merge=False):
     return
 
 '''Création du coût d'un parcours, qu'il faudra par la suite optimiser'''
-#unit_cost : on attribue aux camions un coût par unité de déplacement
+# unit_cost : on attribue aux camions un coût par unité de déplacement
 def evalVRPTW(individual, instance, distance_matrix, unitCost=1.0, initCost=0):
     #init_cost : cost to travel from the parking to the warehouse
     totalCost = 0
-    route = ind2route(individual, instance, distance_matrix)
+    route = ind2route(individual, instance, distance_matrix, initCost)
     totalCost = 0
     for subRoute in route:
         subRouteTimeCost = 0
@@ -197,5 +198,5 @@ def run_vrptw(instance, distance_matrix, unit_cost, init_cost, ind_size, pop_siz
     best_ind = tools.selBest(pop, 1)[0] #returns a list containing the k best individuals among the population, here the best one
     print(f'Best individual: {best_ind}')
     print(f'Fitness: {best_ind.fitness.values[0]}')
-    printRoute(ind2route(best_ind, instance, distance_matrix))
+    printRoute(ind2route(best_ind, instance, distance_matrix, init_cost))
     print(f'Total cost: {1 / best_ind.fitness.values[0]}')
