@@ -11,9 +11,7 @@ import pandas as pd
 service_time = (1/6) # 10 min pour déposer le colis
 time_work = 8 #journée de travail du camionneur est de 8h
 
-instance = pd.read_csv('graphe.csv')
-n = instance.shape[1]
-distance_matrix = instance[[i] for i in range(4,n)] #prend la matrice des colonnes
+
 ''' Décodage d'un individu en route'''
 def ind2route(individual, instance):
     route = []
@@ -48,7 +46,7 @@ def ind2route(individual, instance):
     if subRoute != []:
         # Save current sub-route before return if not empty
         route.append(subRoute)
-    if instance["max_vehicle"] > len(route):
+    if instance["max_vehicle"][0] > len(route):
         print("Echec de la journée, tous les clients n'ont pas été livrés!")
     return route
 
@@ -158,7 +156,7 @@ def run_vrptw(instance, unit_cost, init_cost, wait_cost, delay_cost, ind_size, p
     fitnesses = list(map(toolbox.evaluate, pop))
     for ind, fit in zip(pop, fitnesses): #on stocke le coût pour chaque individu dans les atribus du creator Individual
         ind.fitness.values = fit
-    print(f'  Evaluated {len(pop)} individuals')
+    print(f'Evaluated {len(pop)} individuals')
 
     # Begin the evolution
     for gen in range(n_gen):
@@ -172,8 +170,8 @@ def run_vrptw(instance, unit_cost, init_cost, wait_cost, delay_cost, ind_size, p
         
 
         # Apply crossover and mutation on the offspring
-         for child1, child2 in zip(offspring[::2], offspring[1::2]): #liste[start : stop : step]
-             # On apparie potentiellent l'individu n à l'individu n+1
+        for child1, child2 in zip(offspring[::2], offspring[1::2]): #liste[start : stop : step]
+            # On apparie potentiellent l'individu n à l'individu n+1
             if random.random() < cx_pb: # Proba qu'il y ait un crossover
                 toolbox.mate(child1, child2)
                 del child1.fitness.values
