@@ -85,6 +85,7 @@ class Vehicule:
         self.dist_max = dist_max
         self.route_etroite = route_etroite
         self.temps = temps # temps du camioneur 
+
 class Camion(Vehicule):
     def __init__(self, capacite, pollution, dist_max, route_etroite = False):
         self.capacite = capacite
@@ -100,11 +101,12 @@ class Leger(Vehicule):
         self.route_etroite = route_etroite    
 
 class Graph:
-    def __init__(self, garage, entrepots: [Entrepot], points_relais: [Entrepot], colis: [Colis]):
+    def __init__(self, garage, entrepots: [Entrepot], points_relais: [Entrepot], colis: [Colis], camion : [Camion]):
         self.garage = garage #la racine 
         self.entrepots = entrepots # liste des entrepots (fixée)
         self.points_relais = points_relais
         self.colis = colis # liste des colis à livrer le jour n
+        self.camion = camion
 
     def make_graph(self):
         # self.graph_list.append(self.garage)
@@ -127,7 +129,7 @@ class Graph:
                     p.client.new_child(r)  
     
     
-    def generate_csv(self, g):
+    def generate_csv(self):
         numero = 1
         file_names = []
         
@@ -139,7 +141,8 @@ class Graph:
             file_names.append(e.max_camions)
             file_names.append(len(e.children))
             numero += 1
-        file_names.append(g.nb_camions) 
+        file_names.append(self.garage.nb_camions)
+        file_names.append(self.camion.capacite)
         return file_names
 
 def csv_entrepot(e, numero: int):

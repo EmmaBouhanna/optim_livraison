@@ -10,7 +10,33 @@ service_time = (1/6) # 10 min pour déposer le colis
 time_work = 8 #journée de travail du camionneur est de 8h
 
 def truck_division(file_properties):
-    number_trucks_from_garage = file_name[0]
+    n = len(file_properties)
+    number_trucks_from_garage = file_properties.pop()
+    deliveries_per_warehouse = file_properties[2::3]
+    max_truck_per_warehouse = file_properties[1::3]
+    number_deliveries = np.sum(np.array(deliveries_per_warehouse))
+    weight_of_delivery = number_trucks_from_garage/number_deliveries
+    number_truck_per_warehouse = []
+    counter = 0
+    k = 0
+    for truck,demand in zip(max_truck_per_warehouse,deliveries_per_warehouse):
+        new_number_trucks = int(demand*weight_of_delivery)
+        if demand<truck and demand<=number_trucks_from_garage - counter:
+            number_truck_per_warehouse.append(demand)
+            counter += demand
+        else:
+            if k == len(deliveries_per_warehouse):
+                number_truck_per_warehouse.append(number_trucks_from_garage - counter)
+            elif new_number_trucks<truck:
+                number_truck_per_warehouse.append(new_number_trucks)
+                counter += new_number_trucks
+            elif new_number_trucks>=truck:
+                number_truck_per_warehouse.append(truck)
+                counter += truck
+        k += 1
+    return(number_truck_per_warehouse)
+
+
     
 
 
@@ -49,9 +75,9 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
     if subRoute != []:
         # Save current sub-route before return if not empty
         route.append(subRoute)
-    route = np.array(route)
-    if max_vehicle < np.shape(route)[0]:
-        print("Echec de la journée, tous les clients n'ont pas été livrés!")
+    route = route[1:]
+    if max_vehicle < len(route):
+        raise ValueError
     return route
 
 ''' Pour afficher une route avec les allers-retours d'un camion'''
@@ -74,10 +100,13 @@ def printRoute(route, merge=False):
 
 '''Création du coût d'un parcours, qu'il faudra par la suite optimiser'''
 # unit_cost : on attribue aux camions un coût par unité de déplacement
-def evalVRPTW(individual, instance, distance_matrix, unitCost=1.0, initCost=0):
+def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, unitCost=1.0, initCost=0):
     #init_cost : cost to travel from the parking to the warehouse
     totalCost = 0
-    route = ind2route(individual, instance, distance_matrix, initCost)
+    try: 
+        route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost)
+    except Exception as exc:
+        print(f'OOPS')
     totalCost = 0
     for subRoute in route:
         subRouteTimeCost = 0
@@ -148,7 +177,7 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, unit_cos
     pop = toolbox.population(n=pop_size) #on crée une population de m individus qui nous sert de départ pour l'algo génétique
 
     #évaluation du coût
-    toolbox.register('evaluate', evalVRPTW, instance=instance, distance_matrix=distance_matrix, unitCost=unit_cost, initCost=init_cost)
+    toolbox.register('evaluate', evalVRPTW, instance=instance, distance_matrix=distance_matrix, vehicle_capacity = vehicle_capacity, max_vehicle = max_vehicle,unitCost=unit_cost, initCost=init_cost)
 
     #sélection de k individus dans la population
     toolbox.register('select', tools.selRoulette)

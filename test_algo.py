@@ -1,6 +1,7 @@
 from graphe import *
 
 g = Garage (150, 50, 40, 60)
+c = Camion(50, 0, 10000)
 e1 = Entrepot (100, 100, 10, 15, 5000)
 e2 = Entrepot (200, 100, 20, 10, 4000)
 e3 = Entrepot (100, 300, 15, 15, 4000)
@@ -14,19 +15,21 @@ p7 = Colis (25, e3, [133, 123])
 entrepots = [e1, e2, e3]
 points_relais = []
 paquets = [p1, p2, p3, p4, p5, p6, p7]
-G = Graph(g, entrepots, points_relais, paquets)
+G = Graph(g, entrepots, points_relais, paquets, c)
 G.make_graph()
 G.garage.children[0].children
 # trace_graph(G)
-file_properties = G.generate_csv(g)
+file_properties = G.generate_csv()
 print(file_properties)
-camions_garage = file_properties.pop()
-
+vehicle_capacity= file_properties.pop()
 
 import pandas as pd
 from optim_gen import run_vrptw, truck_division
-for file in file_properties:
+truck_div = truck_division(file_properties)
+print(truck_div)
+for (i, file) in enumerate(file_properties[::3]):
     instance = pd.read_csv(file)
+    max_vehicle = truck_div[i]
     instance.drop(['Unnamed: 0', 'Identifiant', 'latitude', 'longitude'], axis = 'columns', inplace = True)
     n = instance.shape[1]
     number_of_points = n - 1
