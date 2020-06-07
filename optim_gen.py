@@ -138,7 +138,10 @@ def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehic
 
 def cx_partialy_matched(ind1, ind2):
     size = min(len(ind1), len(ind2))
-    cxpoint1, cxpoint2 = sorted(random.sample(range(size), 2))
+    try:
+        cxpoint1, cxpoint2 = sorted(random.sample(range(size), 2))
+    except ValueError:
+        print('Only one package to deliver')
     temp1 = ind1[cxpoint1:cxpoint2+1] + ind2
     temp2 = ind1[cxpoint1:cxpoint2+1] + ind1
     ind1 = []
