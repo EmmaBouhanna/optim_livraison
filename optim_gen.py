@@ -9,12 +9,16 @@ import pandas as pd
 service_time = (1/6) # 10 min pour déposer le colis
 time_work = 8 #journée de travail du camionneur est de 8h
 
+def truck_division(file_properties):
+    number_trucks_from_garage = file_name[0]
+    
+
 
 ''' Décodage d'un individu en route'''
-def ind2route(individual, instance, distance_matrix, initCost, serviceTime = service_time):
+def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost, serviceTime = service_time):
     # init_cost = time to go from the garage to the warehouse and to come back
     route = []
-    vehicleCapacity = instance['vehicle_capacity'][0]
+    vehicleCapacity = vehicle_capacity
     # Initialize a sub-route
     subRoute = []
     vehicleLoad = 0
@@ -45,7 +49,8 @@ def ind2route(individual, instance, distance_matrix, initCost, serviceTime = ser
     if subRoute != []:
         # Save current sub-route before return if not empty
         route.append(subRoute)
-    if instance["max_vehicle"][0] < len(route):
+    route = np.array(route)
+    if max_vehicle < np.shape(route)[0]:
         print("Echec de la journée, tous les clients n'ont pas été livrés!")
     return route
 
@@ -129,7 +134,7 @@ def mut_inverse_indexes(individual):
 '''Création de l'algorithme génétique (utilisation de la libraire deep tools)'''
 from deap import tools, creator, base
 
-def run_vrptw(instance, distance_matrix, unit_cost, init_cost, ind_size, pop_size, \
+def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, unit_cost, init_cost, ind_size, pop_size, \
     cx_pb, mut_pb, n_gen):
     #ind_size = le nombre de clients !
     #cx_pb = probability of cross-over
@@ -198,5 +203,5 @@ def run_vrptw(instance, distance_matrix, unit_cost, init_cost, ind_size, pop_siz
     best_ind = tools.selBest(pop, 1)[0] #returns a list containing the k best individuals among the population, here the best one
     print(f'Best individual: {best_ind}')
     print(f'Fitness: {best_ind.fitness.values[0]}')
-    printRoute(ind2route(best_ind, instance, distance_matrix, init_cost))
+    printRoute(ind2route(best_ind, instance, distance_matrix, vehicle_capacity, max_vehicle, init_cost))
     print(f'Total cost: {1 / best_ind.fitness.values[0]}')

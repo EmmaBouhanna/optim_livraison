@@ -18,23 +18,21 @@ G = Graph(g, entrepots, points_relais, paquets)
 G.make_graph()
 G.garage.children[0].children
 # trace_graph(G)
-file_names = G.generate_csv(g)
-camions_garage = file_names.pop()
+file_properties = G.generate_csv(g)
+print(file_properties)
+camions_garage = file_properties.pop()
 
 
 import pandas as pd
-from optim_gen import run_vrptw
-for file in file_names:
-
+from optim_gen import run_vrptw, truck_division
+for file in file_properties:
     instance = pd.read_csv(file)
     instance.drop(['Unnamed: 0', 'Identifiant', 'latitude', 'longitude'], axis = 'columns', inplace = True)
     n = instance.shape[1]
-    number_of_points = n - 3
+    number_of_points = n - 1
     number_of_clients = number_of_points - 1
-    instance.columns = ['vehicle_capacity', 'max_vehicle', 'demand'] + [i for i in range(number_of_points)]
-    print(instance.head())
+    instance.columns = ['demand'] + [i for i in range(number_of_points)]
 
     distance_matrix = instance[[i for i in range(0,number_of_points)]] #prend la matrice des colonnes
-    print(distance_matrix.head())
 
-    run_vrptw(instance, distance_matrix, 1.0, 1.0, number_of_clients, 100, 0.4, 0.2, 10)
+    run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, 1.0, 1.0, number_of_clients, 100, 0.4, 0.2, 10)

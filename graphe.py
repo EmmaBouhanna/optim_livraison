@@ -131,11 +131,13 @@ class Graph:
         numero = 1
         file_names = []
         
-        # pour stocker le nombre de camions qui sortent du garage
+        # pour stocker le nombre de camions qui sortent du garage, ainsi que le nombre de clients à livrer
         for e in self.entrepots:
             csv_entrepot(e, numero)
             name = "entrepot_"+str(numero)+".csv"
             file_names.append(name)
+            file_names.append(e.max_camions)
+            file_names.append(len(e.children))
             numero += 1
         file_names.append(g.nb_camions) 
         return file_names
@@ -144,18 +146,18 @@ def csv_entrepot(e, numero: int):
     # L est une liste de listes
     L = []
     # 1èr élément de la liste correspond aux données de l'entrepot
-    l = [e.id, e.capacite, e.max_camions, 0, e.lat, e.long]
+    l = [e.id, 0, e.lat, e.long]
     tree_nodes = [e]+e.children
     for n in tree_nodes:
         l.append(dist(e, n))
     L.append(l)
     # les autres éléments de L correspondent aux données des clients de l'entrepot
     for client in e.children:
-        l = [client.id, e.capacite, e.max_camions, client.taille_colis, client.lat, client.long]
+        l = [client.id, client.taille_colis, client.lat, client.long]
         for n in tree_nodes:
             l.append(dist(client, n)) # convention: route du noeud client vers l'autre noeud
         L.append(l)
-    names = ["Identifiant", "Capacite", "Vehicules_max", "Demande", "latitude", "longitude", "entrepot"]
+    names = ["Identifiant", "Demande", "latitude", "longitude", "entrepot"]
     tree_nodes.pop(0)
     for i in range(len(e.children)):
         ch = "client "+ str(i+1)
@@ -163,7 +165,7 @@ def csv_entrepot(e, numero: int):
     df = pd.DataFrame(L, columns = names)
     name = "entrepot_"+str(numero)+".csv"
     csv = df.to_csv(name)
-    return csv
+    return (csv)
 
 ''' Je commente ce passage parce que cela ne marche pas sur mon ordi'''
 # def trace_graph(graph):
