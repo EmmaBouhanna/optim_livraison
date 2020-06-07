@@ -1,3 +1,3 @@
-,Identifiant,Capacite,Vehicules_max,Demande,entrepot,client 1
-0,980d12cb-0da8-4923-809d-fdb6eb02d9d2,4000,15,0,0.0,180.0499930574839
-1,245a2c9b-424f-42f1-962c-63aaf7ab22fd,4000,15,25,180.0499930574839,0.0
+,Identifiant,Capacite,Vehicules_max,Demande,latitude,longitude,entrepot,client 1
+0,1a80b15c-d1ef-48e3-9d01-8a24dc32e8c6,4000,15,0,100,300,0.0,180.0499930574839
+1,c2c8ccf2-6c65-4d19-a076-0606c68fdbc4,4000,15,25,133,123,180.0499930574839,0.0
