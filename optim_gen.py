@@ -2,6 +2,8 @@ import numpy as np
 import random
 import pandas as pd
 import csv
+import os
+path = 'C:\Didou\Pro\devoirs\Mines\Projet info S2\optim_livraison'
 # N camions => N 'individus'
 # Un individu : liste des clients visités dans l'ordre par x camions (où x < N)
 # une route : décode l'individu en [[4,5,2], [6,7], [10]] (Trois camions ont livré)
@@ -254,4 +256,4 @@ def decode_to_GPS(liste_res, instances):
         columns_res = ['camion' + str(k+1) for k in range(len(routes_entrepot))]
     
         res = pd.DataFrame(routes_entrepot, index = columns_res).transpose()
-        res.to_csv(name)
+        res.to_csv(os.path.join(path,'output_data',name))
