@@ -1,12 +1,10 @@
-import numpy as np
-import pandas as pd
-import csv
-from uuid import uuid4
-import os
-# BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-# import pygraphviz as pgv
-# from PIL import Image
-path = 'C:\Didou\Pro\devoirs\Mines\Projet info S2\optim_livraison'
+# import numpy as np
+# import pandas as pd
+# import csv
+# from uuid import uuid4
+# import os
+from __init__ import *
+
 
 class Node:
     def __init__(self, lat : float, long : float):
@@ -170,7 +168,7 @@ def csv_entrepot(e, numero: int):
         names.append(ch)
     df = pd.DataFrame(L, columns = names)
     name = "entrepot_"+str(numero)+".csv"
-    csv = df.to_csv(os.path.join(path, 'input_data', name))
+    csv = df.to_csv(os.path.join(PATH, 'input_data', name))
     return (csv)
 
 ''' Je commente ce passage parce que cela ne marche pas sur mon ordi'''

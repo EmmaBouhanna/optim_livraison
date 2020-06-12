@@ -1,9 +1,4 @@
-import numpy as np
-import random
-import pandas as pd
-import csv
-import os
-path = 'C:\Didou\Pro\devoirs\Mines\Projet info S2\optim_livraison'
+from __init__ import *
 # N camions => N 'individus'
 # Un individu : liste des clients visités dans l'ordre par x camions (où x < N)
 # une route : décode l'individu en [[4,5,2], [6,7], [10]] (Trois camions ont livré)
@@ -169,7 +164,6 @@ def mut_inverse_indexes(individual):
 
 
 '''Création de l'algorithme génétique (utilisation de la libraire deep tools)'''
-from deap import tools, creator, base
 
 def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, unit_cost, init_cost, ind_size, pop_size, \
     cx_pb, mut_pb, n_gen):
@@ -256,4 +250,4 @@ def decode_to_GPS(liste_res, instances):
         columns_res = ['camion' + str(k+1) for k in range(len(routes_entrepot))]
     
         res = pd.DataFrame(routes_entrepot, index = columns_res).transpose()
-        res.to_csv(os.path.join(path,'output_data',name))
+        res.to_csv(os.path.join(PATH,'output_data',name))

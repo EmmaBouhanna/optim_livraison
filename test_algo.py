@@ -1,5 +1,6 @@
 from graphe import *
-path = 'C:\Didou\Pro\devoirs\Mines\Projet info S2\optim_livraison'
+from optim_gen import run_vrptw, truck_division, decode_to_GPS
+
 g = Garage (150, 50, 40, 60)
 c = Camion(50, 0, 10000)
 e1 = Entrepot (100, 100, 10, 15, 5000)
@@ -23,9 +24,7 @@ file_properties = G.generate_csv()
 print(file_properties)
 vehicle_capacity= file_properties.pop()
 
-import pandas as pd
-import os
-from optim_gen import run_vrptw, truck_division, decode_to_GPS
+
 truck_div = truck_division(file_properties)
 print(truck_div)
 
@@ -33,7 +32,7 @@ instances = [] #listes pour regrouper les résultats par entrepot
 liste_res =[]
 
 for (i, file) in enumerate(file_properties[::3]):
-    instance = pd.read_csv(os.path.join(path, 'input_data', file))
+    instance = pd.read_csv(os.path.join(PATH, 'input_data', file))
     if instance.shape[0]>2 :
         instances += [instance]
     print(instance.head())
