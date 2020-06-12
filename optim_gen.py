@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import pandas as pd
+import csv
 # N camions => N 'individus'
 # Un individu : liste des clients visités dans l'ordre par x camions (où x < N)
 # une route : décode l'individu en [[4,5,2], [6,7], [10]] (Trois camions ont livré)
@@ -46,7 +47,7 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
     route = []
     vehicleCapacity = vehicle_capacity
     # Initialize a sub-route
-    subRoute = []
+    subRoute = [0]
     vehicleLoad = 0
     lastCustomerID = 0
     elapsedTime = 2*initCost
@@ -65,20 +66,22 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
             elapsedTime = updatedElapsedTime - returnTime
         else:
             # Save current sub-route
+            subRoute.append(0)
             route.append(subRoute)
             # Initialize a new sub-route and add to it
-            subRoute = [customerID]
+            subRoute = [0, customerID]
             vehicleLoad = demand
             elapsedTime = distance_matrix[0][customerID] + serviceTime
         # Update last customer ID
         lastCustomerID = customerID
     if subRoute != []:
         # Save current sub-route before return if not empty
+        subRoute.append(0)
         route.append(subRoute)
     route = route[1:]
     if max_vehicle < len(route):
         raise ValueError
-    return route
+    return (route)
 
 ''' Pour afficher une route avec les allers-retours d'un camion'''
 def printRoute(route, merge=False):
@@ -103,13 +106,11 @@ def printRoute(route, merge=False):
 def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, unitCost=1.0, initCost=0):
     #init_cost : cost to travel from the parking to the warehouse
     totalCost = 0
-    try: 
-        route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost)
-    except Exception as exc:
-        print(f'OOPS')
+   
+    route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost)
+    
     totalCost = 0
     for subRoute in route:
-        subRouteTimeCost = 0
         subRouteDistance = 0
         elapsedTime = 0
         lastCustomerID = 0
@@ -141,7 +142,7 @@ def cx_partialy_matched(ind1, ind2):
     try:
         cxpoint1, cxpoint2 = sorted(random.sample(range(size), 2))
     except ValueError:
-        print('Only one package to deliver')
+        print('Error : Only one package to deliver')
     temp1 = ind1[cxpoint1:cxpoint2+1] + ind2
     temp2 = ind1[cxpoint1:cxpoint2+1] + ind1
     ind1 = []
@@ -162,6 +163,8 @@ def mut_inverse_indexes(individual):
     start, stop = sorted(random.sample(range(len(individual)), 2))
     individual = individual[:start] + individual[stop:start-1:-1] + individual[stop+1:]
     return (individual, )
+
+
 
 '''Création de l'algorithme génétique (utilisation de la libraire deep tools)'''
 from deap import tools, creator, base
@@ -235,5 +238,20 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, unit_cos
     best_ind = tools.selBest(pop, 1)[0] #returns a list containing the k best individuals among the population, here the best one
     print(f'Best individual: {best_ind}')
     print(f'Fitness: {best_ind.fitness.values[0]}')
-    printRoute(ind2route(best_ind, instance, distance_matrix, vehicle_capacity, max_vehicle, init_cost))
     print(f'Total cost: {1 / best_ind.fitness.values[0]}')
+    return( ind2route(best_ind, instance, distance_matrix, vehicle_capacity, max_vehicle, init_cost))
+
+
+'''Exportation des résultats'''
+def decode_to_GPS(liste_res, instances):
+    entrepot_num = 0
+    for (routes_entrepot,instance) in zip(liste_res,instances):
+        entrepot_num += 1
+        for route in routes_entrepot:
+            for i in range(len(route)):
+                route[i] = (instance['latitude'][route[i]], instance['longitude'][route[i]])
+        name = 'res_entrepot_' + str(entrepot_num) + '.csv'
+        columns_res = ['camion' + str(k+1) for k in range(len(routes_entrepot))]
+    
+        res = pd.DataFrame(routes_entrepot, index = columns_res).transpose()
+        res.to_csv(name)

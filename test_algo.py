@@ -24,18 +24,32 @@ print(file_properties)
 vehicle_capacity= file_properties.pop()
 
 import pandas as pd
-from optim_gen import run_vrptw, truck_division
+from optim_gen import run_vrptw, truck_division, decode_to_GPS
 truck_div = truck_division(file_properties)
 print(truck_div)
+
+instances = [] #listes pour regrouper les résultats par entrepot
+liste_res =[]
+
 for (i, file) in enumerate(file_properties[::3]):
     instance = pd.read_csv(file)
+    if instance.shape[0] >2 :
+        instances += [instance]
+    print(instance.head())
     max_vehicle = truck_div[i]
-    instance.drop(['Unnamed: 0', 'Identifiant', 'latitude', 'longitude'], axis = 'columns', inplace = True)
-    n = instance.shape[1]
+    instance_bis = instance.drop(['Unnamed: 0', 'Identifiant', 'latitude', 'longitude'], axis = 'columns')
+    n = instance_bis.shape[1]
     number_of_points = n - 1
     number_of_clients = number_of_points - 1
-    instance.columns = ['demand'] + [i for i in range(number_of_points)]
+    instance_bis.columns = ['demand'] + [i for i in range(number_of_points)]
 
-    distance_matrix = instance[[i for i in range(0,number_of_points)]] #prend la matrice des colonnes
+    distance_matrix = instance_bis[[i for i in range(0,number_of_points)]] #prend la matrice des colonnes
+    try :
+        res = run_vrptw(instance_bis, distance_matrix, vehicle_capacity, max_vehicle, 1.0, 1.0, number_of_clients, 100, 0.4, 0.2, 10)
+        liste_res.append(res)
+    except Exception:
+        print('Oooops') # only one package to deliver    
 
-    run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, 1.0, 1.0, number_of_clients, 100, 0.4, 0.2, 10)
+print(len(liste_res[0]),len(instances))
+decode_to_GPS(liste_res, instances)
+
