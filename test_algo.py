@@ -27,7 +27,6 @@ vehicle_capacity= file_properties.pop()
 
 truck_div = truck_division(file_properties)
 print(truck_div)
-
 instances = [] #listes pour regrouper les résultats par entrepot
 liste_res =[]
 

@@ -1,14 +1,20 @@
 from __init__ import *
-# N camions => N 'individus'
 # Un individu : liste des clients visités dans l'ordre par x camions (où x < N)
 # une route : décode l'individu en [[4,5,2], [6,7], [10]] (Trois camions ont livré)
 # tous les camions ont la même capacité au départ
 
 service_time = (1/6) # 10 min pour déposer le colis
-time_work = 8 #journée de travail du camionneur est de 8h
+time_work = 8 # journée de travail du camionneur est de 8h
 
 def truck_division(file_properties):
-    n = len(file_properties)
+    """
+    Input : a list containing the names of the warehouses, the maximal number of trucks allowed each warehouse and the number
+    of deliveries per warehouse.
+
+    Output : Trucks that come from the garage are divided into the warehouses before starting their deliveries.
+    Returns a list containing the number of vehicles per warehouse at the beginning of the day
+
+    """
     number_trucks_from_garage = file_properties.pop()
     deliveries_per_warehouse = file_properties[2::3]
     max_truck_per_warehouse = file_properties[1::3]
@@ -40,6 +46,12 @@ def truck_division(file_properties):
 
 ''' Décodage d'un individu en route'''
 def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost, serviceTime = service_time):
+    """
+    Input : 
+    - an individual to be decoded into a route containing
+    the journey of each truck which started at the warehouse,
+
+    """
     # init_cost = time to go from the garage to the warehouse and to come back
     route = []
     vehicleCapacity = vehicle_capacity
