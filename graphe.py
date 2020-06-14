@@ -1,9 +1,5 @@
-import numpy as np
-import pandas as pd
-import csv
-from uuid import uuid4
-# import pygraphviz as pgv
-# from PIL import Image
+from __init__ import *
+
 
 class Node:
     def __init__(self, lat : float, long : float):
@@ -167,7 +163,7 @@ def csv_entrepot(e, numero: int):
         names.append(ch)
     df = pd.DataFrame(L, columns = names)
     name = "entrepot_"+str(numero)+".csv"
-    csv = df.to_csv(name)
+    csv = df.to_csv(os.path.join(PATH, 'input_data', name))
     return (csv)
 
 ''' Je commente ce passage parce que cela ne marche pas sur mon ordi'''
