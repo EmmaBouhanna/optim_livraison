@@ -1,18 +1,15 @@
 from __init__ import *
-# Un individu : liste des clients visités dans l'ordre par x camions (où x < N)
-# une route : décode l'individu en [[4,5,2], [6,7], [10]] (Trois camions ont livré)
-# tous les camions ont la même capacité au départ
 
-service_time = (1/6) # 10 min pour déposer le colis
-time_work = 8 # journée de travail du camionneur est de 8h
+service_time = (1/6) # 10 min lost per delivery
+time_work = 8 # number of work hours
 
 def truck_division(file_properties):
     """
+    Trucks that come from the garage are divided into the warehouses before starting their deliveries.
+
     Input : a list containing the names of the warehouses, the maximal number of trucks allowed each warehouse and the number
     of deliveries per warehouse.
-
-    Output : Trucks that come from the garage are divided into the warehouses before starting their deliveries.
-    Returns a list containing the number of vehicles per warehouse at the beginning of the day
+    Output : Returns a list containing the number of vehicles per warehouse at the beginning of the day
 
     """
     number_trucks_from_garage = file_properties.pop()
@@ -44,15 +41,23 @@ def truck_division(file_properties):
     
 
 
-''' Décodage d'un individu en route'''
 def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost, serviceTime = service_time):
     """
+    Decoding individual to route
+
     Input : 
-    - an individual to be decoded into a route containing
-    the journey of each truck which started at the warehouse,
+    - individual : list to be decoded into a route containing
+    the journey of each truck which started at the warehouse
+    - instance : dataframe containing the demand of each client (volume of package), latitude and longitude of each point (warehouse + destinations)
+    - distance_matrix : dataframe containing the distances between client i and client j (the cost to travel from i to j)
+    - vehicle capacity (float) : total volume that can be loaded in the trucks (every truck have the same capacity for the moment)
+    - max_vehicle (int) : number of trucks in the warehouse at the beginning of the day
+    - initCost : time to go from the garage to the warehouse (part of a worker's day)
+    - serviceTime : time lost per delivery
+
+    Output : a list of lists containing the route of each truck from the warehouse and back to it at the end of the day
 
     """
-    # init_cost = time to go from the garage to the warehouse and to come back
     route = []
     vehicleCapacity = vehicle_capacity
     # Initialize a sub-route
@@ -92,8 +97,13 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
         raise ValueError
     return (route)
 
-''' Pour afficher une route avec les allers-retours d'un camion'''
 def printRoute(route, merge=False):
+    """
+    Print a route with the journey of each truck (to check)
+
+    Input : a route (list)
+    Output : None 
+    """ 
     routeStr = '0'
     subRouteCount = 0
     for subRoute in route:
@@ -110,10 +120,20 @@ def printRoute(route, merge=False):
         print(routeStr)
     return
 
-'''Création du coût d'un parcours, qu'il faudra par la suite optimiser'''
-# unit_cost : on attribue aux camions un coût par unité de déplacement
-def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, unitCost=1.0, initCost=0):
-    #init_cost : cost to travel from the parking to the warehouse
+def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, unitCost=1.0, initCost=0.0):
+    """
+    Creation of a cost function based on the total cost of each route
+
+    Input :
+    - individual : list containing the total journey of the trucks (has to be decoded afterwards to get the real journey of each truck)
+    - instance : dataframe containing the demand of each client (volume of package), longitude and latitude of each point (warehouse + destinations)
+    - distance_matrix : dataframe containing the distances between client i and client j (the cost to travel from i to j)
+    - vehicle capacity (float) : total volume that can be loaded in the trucks (every truck have the same capacity for the moment)
+    - unitCost (float) : cost of 1 unity of movement
+    - initCost (float) : cost to travel from the garage to the warehouse (part of a worker's day) (default = 0)
+    
+    Output : Fitness (1/Cost)
+    """
     totalCost = 0
    
     route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost)
@@ -140,13 +160,17 @@ def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehic
         # Update total cost
         totalCost = totalCost + subRouteTranCost
     fitness = 1.0 / totalCost
-    return fitness
+    return fitness 
 
-#on va chercher à maximiser fitness
-
-'''Implémentation de la fonction de crossover lors de l'évolution génétique '''
+# We intend to maximise fitness
 
 def cx_partialy_matched(ind1, ind2):
+    '''
+    Step of the genetic algorithm : crossover
+
+    Input : two individuals (list)
+    Output : two individuals that have been modified
+    '''
     size = min(len(ind1), len(ind2))
     try:
         cxpoint1, cxpoint2 = sorted(random.sample(range(size), 2))
@@ -164,47 +188,72 @@ def cx_partialy_matched(ind1, ind2):
             ind2.append(gene)
     return ind1, ind2
 
-'''Implémentation de la fonction de mutation lors du processus génétique'''
-# On fait l'hypothèse de mutation par inversion seulement (ie pas d'insertion ni de déletion, plus simple car on a des cleints fixes à livrer
-# Et le seul facteur sur lequel on peut jouer est l'ordre de livraison
 def mut_inverse_indexes(individual):
-    '''gavrptw.core.mut_inverse_indexes(individual)'''
+    '''
+    Step of genetic algorithm : Mutation (only by inversion, to keep the unicity of each occurence) . No insertion or deletion allowed
+
+    Input : individual (list)
+    Output : mutated individual
+    '''
+
     start, stop = sorted(random.sample(range(len(individual)), 2))
     individual = individual[:start] + individual[stop:start-1:-1] + individual[stop+1:]
     return (individual, )
 
 
 
-'''Création de l'algorithme génétique (utilisation de la libraire deep tools)'''
 
 def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, unit_cost, init_cost, ind_size, pop_size, \
     cx_pb, mut_pb, n_gen):
-    #ind_size = le nombre de clients !
-    #cx_pb = probability of cross-over
-    #mut_pb = probability of a mutation
-    creator.create("FitnessMax", base.Fitness, weights = (1.0,) ) #on prend des poids porsitifs car on veut maximiser fitness
-    creator.create('Individual', list, fitness=creator.FitnessMax)
-    toolbox = base.Toolbox()  # on initialise une instance de l'objet Toolbox
-    toolbox.register('indexes', random.sample, range(1, ind_size + 1), ind_size) #on crée un générateur qui va les numéros des clients à livrer (codés de 1 à ind_size, à décoder éventuellement)
-    toolbox.register('individual', tools.initIterate, creator.Individual, toolbox.indexes) #crée un individu en appelant la fonction random.sample(range(1,ind_size+1), ind_size)
-    toolbox.register('population', tools.initRepeat, list, toolbox.individual) 
-    pop = toolbox.population(n=pop_size) #on crée une population de m individus qui nous sert de départ pour l'algo génétique
+    """
+    Genetic algorithm which combines all the step of the process of evolution
 
-    #évaluation du coût
+    Input : 
+    - instance : dataframe containing the demand of each client (volume of package)
+    - distance_matrix : dataframe containing the distances between client i and client j (the cost to travel from i to j)
+    - vehicle capacity (float) : total volume that can be loaded in the trucks (every truck have the same capacity for the moment)
+    - max_vehicle (int) : number of trucks in the warehouse at the beginning of the day
+    - unit_cost (float) : cost of 1 unity of movement
+    - init_cost (float) : time to go from the garage to the warehouse (part of a worker's day) (default = 0)
+    - ind_size (int) : number of clients
+    - pop_size (int) : size of the population
+    - cx_pb (float) : probability of crossover
+    - mut_pb(float) : probability of mutation
+    - n_gen (int) : number of generations
+
+    """
+
+    creator.create("FitnessMax", base.Fitness, weights = (1.0,) ) #Positive weights because we intend to maximise fitness
+    creator.create('Individual', list, fitness=creator.FitnessMax)
+    
+    # Instance of Toolbox object
+    toolbox = base.Toolbox() 
+
+    # Creation of generator that generates the numbers of customers to deliver (coded from 1 to ind_size, potentially to decode)
+    toolbox.register('indexes', random.sample, range(1, ind_size + 1), ind_size)
+
+    # Creation of an indicidual by calling random.sample(range(1,ind_size+1), ind_size)
+    toolbox.register('individual', tools.initIterate, creator.Individual, toolbox.indexes)
+
+    # Creation of a population made up of n individuals : start of the genetic algorithm
+    toolbox.register('population', tools.initRepeat, list, toolbox.individual) 
+    pop = toolbox.population(n=pop_size) 
+
+    # Cost Evaluation
     toolbox.register('evaluate', evalVRPTW, instance=instance, distance_matrix=distance_matrix, vehicle_capacity = vehicle_capacity, max_vehicle = max_vehicle,unitCost=unit_cost, initCost=init_cost)
 
-    #sélection de k individus dans la population
+    # Selection of k individuals from the population
     toolbox.register('select', tools.selRoulette)
 
-    #Association de deux individus de la population
+    # Association of two individuals from the population
     toolbox.register('mate', cx_partialy_matched)
 
-    #Mutation d'un individu
+    # Mutation of an individual
     toolbox.register('mutate', mut_inverse_indexes)
     
     print('start of evolution')
     fitnesses = list(map(toolbox.evaluate, pop))
-    for ind, fit in zip(pop, fitnesses): #on stocke le coût pour chaque individu dans les atribus du creator Individual
+    for ind, fit in zip(pop, fitnesses): #JKeep track of each indiviual's cost as attributes of creator Individual
         ind.fitness.values = (fit,)
     print(f'Evaluated {len(pop)} individuals')
 
@@ -220,14 +269,14 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, unit_cos
         
 
         # Apply crossover and mutation on the offspring
-        for child1, child2 in zip(offspring[::2], offspring[1::2]): #liste[start : stop : step]
-            # On apparie potentiellent l'individu n à l'individu n+1
-            if random.random() < cx_pb: # Proba qu'il y ait un crossover
+        for child1, child2 in zip(offspring[::2], offspring[1::2]): #list[start : stop : step]
+            # potentially match individual n and individual n+1
+            if random.random() < cx_pb: # Probability of a crossover
                 toolbox.mate(child1, child2)
                 del child1.fitness.values
                 del child2.fitness.values
-                # On a modifié child1 et child2, ils ont maintenant des fitness.values invalides (les enfants se sont croisés)
-        for mutant in offspring: # Proba d'une mutation
+                # changed child1 et child2, they now have invalid fitness.values (children have crossed)
+        for mutant in offspring: # Probability of mutation
             if random.random() < mut_pb:
                 toolbox.mutate(mutant)
                 del mutant.fitness.values
@@ -243,23 +292,30 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, unit_cos
         pop[:] = offspring
 
     print('-- End of (successful) evolution --')
-    best_ind = tools.selBest(pop, 1)[0] #returns a list containing the k best individuals among the population, here the best one
+    best_ind = tools.selBest(pop, 1)[0]  #returns a list containing the k best individuals among the population, here the best one
     print(f'Best individual: {best_ind}')
     print(f'Fitness: {best_ind.fitness.values[0]}')
     print(f'Total cost: {1 / best_ind.fitness.values[0]}')
     return( ind2route(best_ind, instance, distance_matrix, vehicle_capacity, max_vehicle, init_cost))
 
 
-'''Exportation des résultats'''
 def decode_to_GPS(liste_res, instances):
-    entrepot_num = 0
-    for (routes_entrepot,instance) in zip(liste_res,instances):
-        entrepot_num += 1
-        for route in routes_entrepot:
+    """
+    Export results
+
+    Input: 
+    - list_res (list) : Results of the algorithm for each warehouse
+    - instances(list of dataframes) : keeps track of all the instances of each warehouse
+
+    """
+    warehouse_num = 0
+    for (routes_warehouse,instance) in zip(liste_res,instances):
+        warehouse_num += 1
+        for route in routes_warehouse:
             for i in range(len(route)):
                 route[i] = (instance['latitude'][route[i]], instance['longitude'][route[i]])
-        name = 'res_entrepot_' + str(entrepot_num) + '.csv'
-        columns_res = ['camion' + str(k+1) for k in range(len(routes_entrepot))]
+        name = 'res_entrepot_' + str(warehouse_num) + '.csv'
+        columns_res = ['camion' + str(k+1) for k in range(len(routes_warehouse))]
     
-        res = pd.DataFrame(routes_entrepot, index = columns_res).transpose()
+        res = pd.DataFrame(routes_warehouse, index = columns_res).transpose()
         res.to_csv(os.path.join(PATH,'output_data',name))
