@@ -9,7 +9,6 @@ def truck_division(file_properties):
 
     Input : a list containing the names of the warehouses, the maximal number of trucks allowed each warehouse and the number
     of deliveries per warehouse.
-
     Output : Returns a list containing the number of vehicles per warehouse at the beginning of the day
 
     """
@@ -121,8 +120,6 @@ def printRoute(route, merge=False):
         print(routeStr)
     return
 
-'''Création du coût d'un parcours, qu'il faudra par la suite optimiser'''
-# unit_cost : on attribue aux camions un coût par unité de déplacement
 def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, unitCost=1.0, initCost=0.0):
     """
     Creation of a cost function based on the total cost of each route
