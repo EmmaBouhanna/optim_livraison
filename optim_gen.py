@@ -169,6 +169,13 @@ def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehic
 '''Implémentation de la fonction de crossover lors de l'évolution génétique '''
 
 def cx_partialy_matched(ind1, ind2):
+    '''
+    Step of the genetic algorithm : crossover
+
+    Input : two individuals (list)
+
+    Output : two individuals that have been modified
+    '''
     size = min(len(ind1), len(ind2))
     try:
         cxpoint1, cxpoint2 = sorted(random.sample(range(size), 2))
@@ -190,7 +197,10 @@ def cx_partialy_matched(ind1, ind2):
 # On fait l'hypothèse de mutation par inversion seulement (ie pas d'insertion ni de déletion, plus simple car on a des cleints fixes à livrer
 # Et le seul facteur sur lequel on peut jouer est l'ordre de livraison
 def mut_inverse_indexes(individual):
-    '''gavrptw.core.mut_inverse_indexes(individual)'''
+    '''
+    Step of genetic algorithm : Mutation (only by inversion)
+    '''
+
     start, stop = sorted(random.sample(range(len(individual)), 2))
     individual = individual[:start] + individual[stop:start-1:-1] + individual[stop+1:]
     return (individual, )
