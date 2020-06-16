@@ -1,18 +1,16 @@
 from __init__ import *
-# Un individu : liste des clients visités dans l'ordre par x camions (où x < N)
-# une route : décode l'individu en [[4,5,2], [6,7], [10]] (Trois camions ont livré)
-# tous les camions ont la même capacité au départ
 
-service_time = (1/6) # 10 min pour déposer le colis
-time_work = 8 # journée de travail du camionneur est de 8h
+service_time = (1/6) # 10 min lost per delivery
+time_work = 8 # number of work hours
 
 def truck_division(file_properties):
     """
+    Trucks that come from the garage are divided into the warehouses before starting their deliveries.
+
     Input : a list containing the names of the warehouses, the maximal number of trucks allowed each warehouse and the number
     of deliveries per warehouse.
 
-    Output : Trucks that come from the garage are divided into the warehouses before starting their deliveries.
-    Returns a list containing the number of vehicles per warehouse at the beginning of the day
+    Output : Returns a list containing the number of vehicles per warehouse at the beginning of the day
 
     """
     number_trucks_from_garage = file_properties.pop()
@@ -44,15 +42,23 @@ def truck_division(file_properties):
     
 
 
-''' Décodage d'un individu en route'''
 def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost, serviceTime = service_time):
     """
+    Decoding individual to route
+
     Input : 
-    - an individual to be decoded into a route containing
-    the journey of each truck which started at the warehouse,
+    - individual : list to be decoded into a route containing
+    the journey of each truck which started at the warehouse
+    - instance : dataframe containing the demand of each client (volume of package)
+    - distance_matrix : dataframe containing the distances between client i and client j (the cost to travel from i to j)
+    - vehicle capacity (float) : total volume that can be loaded in the trucks (every truck have the same capacity for the moment)
+    - max_vehicle (int) : number of trucks in the warehouse at the beginning of the day
+    - initCost : time to go from the garage to the warehouse (part of a worker's day)
+    - serviceTime : time lost per delivery
+
+    Output : a list of lists containing the route of each truck from the warehouse and back to it at the end of the day
 
     """
-    # init_cost = time to go from the garage to the warehouse and to come back
     route = []
     vehicleCapacity = vehicle_capacity
     # Initialize a sub-route
@@ -92,8 +98,13 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
         raise ValueError
     return (route)
 
-''' Pour afficher une route avec les allers-retours d'un camion'''
 def printRoute(route, merge=False):
+    """
+    Print a route with the journey of each truck (to check)
+
+    Input : a route (list)
+    Output : None 
+    """ 
     routeStr = '0'
     subRouteCount = 0
     for subRoute in route:
@@ -112,7 +123,19 @@ def printRoute(route, merge=False):
 
 '''Création du coût d'un parcours, qu'il faudra par la suite optimiser'''
 # unit_cost : on attribue aux camions un coût par unité de déplacement
-def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, unitCost=1.0, initCost=0):
+def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, unitCost=1.0, initCost=0.0):
+    """
+    Creation of a cost function based on the total cost of each route
+
+    Input :
+    - individual : list containing the total journey of the trucks (has to be decoded afterwards to get the real journey of each truck)
+    - instance : dataframe containing the demand of each client (volume of package)
+    - distance_matrix : dataframe containing the distances between client i and client j (the cost to travel from i to j)
+    - vehicle capacity (float) : total volume that can be loaded in the trucks (every truck have the same capacity for the moment)
+    - unitCost (float) : cost of 1 unity of movement
+    - initCost (float) : time to go from the garage to the warehouse (part of a worker's day) (default = 0)
+
+    """
     #init_cost : cost to travel from the parking to the warehouse
     totalCost = 0
    
@@ -140,10 +163,9 @@ def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehic
         # Update total cost
         totalCost = totalCost + subRouteTranCost
     fitness = 1.0 / totalCost
-    return fitness
+    return fitness 
 
-#on va chercher à maximiser fitness
-
+# We intend to maximise fitness
 '''Implémentation de la fonction de crossover lors de l'évolution génétique '''
 
 def cx_partialy_matched(ind1, ind2):
