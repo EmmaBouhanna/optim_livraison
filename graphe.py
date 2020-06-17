@@ -1,5 +1,6 @@
 from __init__ import *
-
+from warehouses_and_clients import *
+from routes.py import *
 
 class Node:
     def __init__(self, lat : float, long : float):
@@ -18,9 +19,6 @@ class Node:
             return True
         else:
             return False
-    
-def dist(node1, node2):
-        return np.sqrt((node1.lat - node2.lat)**2 +(node1.long - node2.long)**2)
 
 
 class Client(Node): 
@@ -30,7 +28,6 @@ class Client(Node):
         self.long = long
         self.taille_colis = size
         self.children = []
-        self.str = "client"
     
 def make_client(lat : float, long : float, size: int):
     new_client = Client(lat, long, size)
@@ -54,10 +51,9 @@ class Garage(Node):
         self.nb_camions = nb_camions
         self.nb_legers = nb_legers
         self.children = []
-        self.str = "garage"
 
 class Entrepot(Node):
-    def __init__(self, lat : float, long : float, max_camions : int, max_legers : int, capacite : int):
+    def __init__(self, lat : float, long : float, max_camions : int, max_legers: int, capacite : int):
         self.id = uuid4() # retrouver comment faire des identifiants uniques (avec un itérable?)
         self.lat = lat
         self.long = long
@@ -65,13 +61,7 @@ class Entrepot(Node):
         self.max_camions = max_camions
         self.max_legers = max_legers
         self.capacite = capacite
-        self.str = "entrepot"
 
-class Route: # j'aurais tendance à mettre ces infos (enfin etroite uniquement) dans le dico directement
-    def __init__(self, vitesse, etroite : bool, dist):
-        self.vitesse = vitesse # vitesse max autorisée en km/h
-        self.etroite = etroite
-        self.dist = dist
 
 
 class Vehicule:
@@ -97,13 +87,15 @@ class Leger(Vehicule):
         self.route_etroite = route_etroite    
 
 class Graph:
-    def __init__(self, garage, entrepots: [Entrepot], points_relais: [Entrepot], colis: [Colis], camion : [Camion]):
+    def __init__(self, garage, entrepots: [Entrepot], colis: [Colis], camion : [Camion]):
         self.garage = garage #la racine 
         self.entrepots = entrepots # liste des entrepots (fixée)
-        self.points_relais = points_relais
         self.colis = colis # liste des colis à livrer le jour n
         self.camion = camion
+        self.k = len(colis) # nombre de clients
 
+
+        
     def make_graph(self):
         # self.graph_list.append(self.garage)
         for e in self.entrepots:
@@ -118,12 +110,6 @@ class Graph:
                     if pp.id != p.id:
                         p.client.new_child(pp.client) # NB: pour le moment on "perd" le paquet dans la construction du graphe
         
-        for r in self.points_relais:
-            for p in self.colis:
-                if dist(r, p) < 5: # périmètre de 5 km
-                    r.new_child(p.client)
-                    p.client.new_child(r)  
-    
     
     def generate_csv(self):
         numero = 1
@@ -140,6 +126,54 @@ class Graph:
         file_names.append(self.garage.nb_camions)
         file_names.append(self.camion.capacite)
         return file_names
+    
+    
+
+
+def create_graph_components(k: int):
+    df, indexes = random_clients(k, df = df_warehouses)
+    localisations = df.values.tolist()
+    index_start_warehouses = indexes[0][0]
+    index_end_warehouses = indexes[0][1]
+    index_start_clients = indexes[1][0]
+    index_end_clients = indexes[1][1]
+    
+    # creation of warehouses
+    warehouses = []
+    for i in range(index_start_warehouses, index_end_warehouses + 1):
+        lat, long = localisations[i][0], localisations[i][1]
+        capacity = 400000 #m^3
+        max_vehicles = 50
+        max_light = 30
+        warehouses.append(Entrepot(lat, long, max_vehicles, max_ligh, capacity))
+    
+    # creation of parcels
+    w = len(warehouses)
+    parcels = []
+    for i in range(index_start_clients, index_end_clients + 1):
+        destination = [localisations[i][0], localisations[i][1]]
+        size = 0.01*np.random.randint(1, 100) # parcel sizes range from 10 cm^3 to 1 m^3
+        random_draw = np.random.randint(0, w)
+        where_from = warehouses[w]
+        parcels.append(Colis(size, where_from, destination))
+        
+    return df, warehouses, parcels
+
+def dist (n1: Node, n2: Node, G:Graph, df):
+    coords, dist_matrix, itineraries = itineraries(df, G = G_idf, critere_optim = 'length')
+    
+    if isinstance(n1, Garage):
+        dist = 1234 # cout de Emma??
+    elif isinstance(n2, Garage):
+        dist = 1234
+    else:
+        for el in coords:
+            if n1.lat == el[0] and n1.long == el[1]:
+                i = coords.index((n1.lat, n1.long))
+            if n2.lat == el[0] and n2.long == el[1]:
+                j = coords.index((n1.lat, n1.long))
+        dist = dist_matrix[i][j]
+    return(dist)
 
 def csv_entrepot(e, numero: int):
     # L est une liste de listes
