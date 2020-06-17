@@ -1,6 +1,6 @@
 from __init__ import *
 from warehouses_and_clients import *
-from routes.py import *
+from routes import *
 
 class Node:
     def __init__(self, lat : float, long : float):
@@ -145,7 +145,7 @@ def create_graph_components(k: int):
         capacity = 400000 #m^3
         max_vehicles = 50
         max_light = 30
-        warehouses.append(Entrepot(lat, long, max_vehicles, max_ligh, capacity))
+        warehouses.append(Entrepot(lat, long, max_vehicles, max_light, capacity))
     
     # creation of parcels
     w = len(warehouses)
@@ -154,7 +154,7 @@ def create_graph_components(k: int):
         destination = [localisations[i][0], localisations[i][1]]
         size = 0.01*np.random.randint(1, 100) # parcel sizes range from 10 cm^3 to 1 m^3
         random_draw = np.random.randint(0, w)
-        where_from = warehouses[w]
+        where_from = warehouses[w] """COM SANDRA : w-1 plutôt??"""
         parcels.append(Colis(size, where_from, destination))
         
     return df, warehouses, parcels
