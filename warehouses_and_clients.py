@@ -1,17 +1,17 @@
+import osmnx as ox
+import networkx as nx
 import numpy as np
 import pandas as pd
 import random
-import osmnx as ox
-import networkx as nx
-from routes import G_idf 
 
-gdf_nodes_idf, gdf_edges_idf = ox.graph_to_gdfs(G_idf)
-gdf_nodes_idf = gdf_nodes_idf.rename(columns = {'x':'Lon'}) 
-gdf_nodes_idf = gdf_nodes_idf.rename(columns = {'y':'Lat'})
+from graph_idf import G_idf, gdf_nodes_idf, n_nodes
 
-n_nodes = nx.number_of_nodes(G_idf)
+# Warehouses
 
 df_warehouses = pd.read_csv("warehouses.csv", sep=";")
+
+
+# Random clients
 
 def random_clients(k, df = df_warehouses) :
 
@@ -38,9 +38,9 @@ def random_clients(k, df = df_warehouses) :
     Random_nodes = []
 
     for i in range(k):
-        random_node = list(nx.nodes(G_idf))[random.randint(0, m)]
-        while node in Random_nodes :
-            random_node = list(nx.nodes(G_idf))[random.randint(0, m)]
+        random_node = list(nx.nodes(G_idf))[random.randint(0, n_nodes)]
+        while random_node in Random_nodes :
+            random_node = list(nx.nodes(G_idf))[random.randint(0, n_nodes)]
         lat = gdf_nodes_idf["Lat"][random_node]
         lon = gdf_nodes_idf["Lon"][random_node]
         df_complete.loc[n_warehouses + i] = [lat, lon, f"Client {i}", None, None]

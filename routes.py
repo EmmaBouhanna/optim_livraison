@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 import random
 
-#Création du graphe osmnx de l'Ile-de-France
-G_idf = ox.graph_from_place('Ile-de-France, France', network_type='drive', simplify=True)
+from graph_idf import G_idf, gdf_nodes_idf, n_nodes
+
 
 def nearest_nodes(df, G = G_idf):
 
@@ -28,6 +28,7 @@ def nearest_nodes(df, G = G_idf):
     Coord = list(zip(list(df["Lat"]), list(df["Lon"])))
     print(Coord)
     Nearest_nodes = [ox.distance.get_nearest_node(G, Coord[i]) for i in range(n)]
+    
     return Coord, Nearest_nodes
 
 
@@ -48,6 +49,7 @@ def itineraries(df, G = G_idf, critere_optim = 'length'):
     ("length"), mais on peut aussi chercher les itinéraires les plus rapides ("travel_time")
 
     La fonction retourne :
+    - Coord : la liste des tuples (latitude, longitude) pour chacun des points
     - Tableau_distances : un tableau numpy dans lequel la case [i, j] contient la distance 
     de l’itinéraire le plus court allant de i à j (tableau pas forcément symétrique car 
     certaines routes peuvent êtres à sens unique)
@@ -61,7 +63,7 @@ def itineraries(df, G = G_idf, critere_optim = 'length'):
     Tableau_distances = np.zeros((n, n))
     Itineraires = {}
 
-    Nearest_nodes = nearest_nodes(df, G)[1]
+    Coord, Nearest_nodes = nearest_nodes(df, G)
 
     for i in range(n) :
         depart = Nearest_nodes[i]
@@ -72,4 +74,6 @@ def itineraries(df, G = G_idf, critere_optim = 'length'):
             Itineraires[(i, j)] = route, distance
             Tableau_distances[i, j] = distance
 
-    return Tableau_distances, Itineraires 
+    return Coord, Tableau_distances, Itineraires
+
+

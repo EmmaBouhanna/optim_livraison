@@ -7,6 +7,7 @@ import random
 import folium
 
 from routes import nearest_nodes
+from entrepots_et_clients import random_clients
 
 
 df = pd.read_csv("warehouses.csv", sep=";")
@@ -22,12 +23,3 @@ my_map
 for i in range(n) :
     folium.Circle(radius=100, location=Coord[i], color='crimson', 
     fill=False).add_child(folium.Popup(f'{i}', show = False)).add_to(my_map)            
-
-
-m = nx.number_of_nodes(G_idf)
-
-node = list(nx.nodes(G_idf))[random.randint(0, m)]
-
-node
-
-gdf_nodes_idf["Lat"][node] + 0.01 * random.random()
