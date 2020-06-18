@@ -23,7 +23,7 @@ G.garage.children[0].children
 file_properties = G.generate_csv()
 print(file_properties)
 vehicle_capacity= file_properties.pop()
-
+max_vehicle_per_warehouse = file_properties[1::3]
 
 truck_div = truck_division(file_properties)
 print(truck_div)
@@ -44,7 +44,7 @@ for (i, file) in enumerate(file_properties[::3]):
 
     distance_matrix = instance_bis[[i for i in range(0,number_of_points)]] #prend la matrice des colonnes
     try :
-        res = run_vrptw(instance_bis, distance_matrix, vehicle_capacity, max_vehicle, 1.0, 1.0, number_of_clients, 100, 0.4, 0.2, 10)
+        res = run_vrptw(instance_bis, distance_matrix, vehicle_capacity, max_vehicle, 1.0, number_of_clients, 100, 0.4, 0.2, 10)
         liste_res.append(res)
     except Exception:
         print('Oooops') # only one package to deliver    

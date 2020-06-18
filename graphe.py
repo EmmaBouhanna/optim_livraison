@@ -123,7 +123,6 @@ class Graph:
             file_names.append(e.max_camions)
             file_names.append(len(e.children))
             numero += 1
-        file_names.append(self.garage.nb_camions)
         file_names.append(self.camion.capacite)
         return file_names
     

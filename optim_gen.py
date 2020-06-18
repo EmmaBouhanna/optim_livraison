@@ -2,7 +2,9 @@ from __init__ import *
 
 service_time = (1/6) # 10 min lost per delivery
 time_work = 8 # number of work hours
+cost_dist = 1/50 # coût temporel par unité de distance
 
+'''
 def truck_division(file_properties):
     """
     Trucks that come from the garage are divided into the warehouses before starting their deliveries.
@@ -37,7 +39,7 @@ def truck_division(file_properties):
         k += 1
     return(number_truck_per_warehouse)
 
-
+'''
     
 
 
@@ -120,7 +122,7 @@ def printRoute(route, merge=False):
         print(routeStr)
     return
 
-def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, unitCost=1.0, initCost=0.0):
+def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, unitCost=cost_dist, initCost=0.0):
     """
     Creation of a cost function based on the total cost of each route
 
@@ -203,8 +205,8 @@ def mut_inverse_indexes(individual):
 
 
 
-def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, unit_cost, init_cost, ind_size, pop_size, \
-    cx_pb, mut_pb, n_gen):
+def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, init_cost, ind_size, pop_size, \
+    cx_pb, mut_pb, n_gen, unit_cost = cost_dist):
     """
     Genetic algorithm which combines all the step of the process of evolution
 
