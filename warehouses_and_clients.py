@@ -7,23 +7,22 @@ import geopandas
 
 # Graph of Ile-de-France
 
-df_nodes_idf = pd.read_csv("gdf_nodes_idf.csv")
-df_edges_idf = pd.read_csv("gdf_edges_idf_simplified.csv")
-df_nodes_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
-df_edges_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
+df_nodes = pd.read_csv("gdf_nodes_idf.csv")
+df_edges = pd.read_csv("gdf_edges_idf_simplified.csv")
+df_nodes.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
+df_edges.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
 
-gdf_nodes_idf = geopandas.GeoDataFrame(df_nodes_idf)
-gdf_edges_idf = geopandas.GeoDataFrame(df_edges_idf)
+gdf_nodes = geopandas.GeoDataFrame(df_nodes)
+gdf_edges = geopandas.GeoDataFrame(df_edges)
 
-G_idf = ox.utils_graph.graph_from_gdfs(gdf_nodes_idf, gdf_edges_idf)
+G_idf = ox.utils_graph.graph_from_gdfs(gdf_nodes, gdf_edges)
 
-n_nodes = nx.number_of_nodes(G_idf) 
+number_of_nodes = df_nodes.shape[0]
 
 
 # Warehouses
 
 df_warehouses = pd.read_csv("warehouses.csv", sep=";")
-
 
 # Random clients
 
@@ -36,7 +35,7 @@ def random_clients(k, df = df_warehouses, G = G_idf) :
     La fonction prend en entrée :
     - k : le nombre de clients qu'on veut générer aléatoirement
     - df : une dataframe de points géographiques (par exemple le garage et les entrepôts)
-    Cette dataframe doit contenir des colonnes "Lat" et "Lon"
+    Cette dataframe doit contenir des colonnes "y"(latitudes) et "x"(longitudes)
     
 
     La fonction retourne :
@@ -52,11 +51,11 @@ def random_clients(k, df = df_warehouses, G = G_idf) :
     Random_nodes = []
 
     for i in range(k):
-        random_node = list(nx.nodes(G_idf))[random.randint(0, n_nodes)]
+        random_node = random.randint(0, df_nodes.shape[0])
         while random_node in Random_nodes :
-            random_node = list(nx.nodes(G_idf))[random.randint(0, n_nodes)]
-        lat = gdf_nodes_idf["Lat"][random_node]
-        lon = gdf_nodes_idf["Lon"][random_node]
+            random_node = random.randint(0, df_nodes.shape[0])
+        lat = gdf_nodes["y"][random_node]
+        lon = gdf_nodes["x"][random_node]
         df_complete.loc[n_warehouses + i] = [lat, lon, f"Client {i}", None, None]
         Random_nodes.append(random_node)
     

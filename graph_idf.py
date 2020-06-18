@@ -13,8 +13,6 @@ ox.speed.add_edge_travel_times(G_idf_0)
 
 # Converting the graph into geodataframes
 gdf_nodes, gdf_edges = ox.graph_to_gdfs(G_idf_0)
-gdf_nodes = gdf_nodes.rename(columns = {'x':'Lon'}) 
-gdf_nodes = gdf_nodes.rename(columns = {'y':'Lat'})
 
 # Converting the geodataframes into csv files (in order to store the data)
 gdf_nodes.to_csv("gdf_nodes_idf.csv")

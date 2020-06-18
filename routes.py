@@ -8,14 +8,14 @@ import random
 from warehouses_and_clients import G_idf, n_nodes
 
 
-def nearest_nodes(df, G = G_idf):
+def nearest_nodes(df, Graph = G_idf):
 
     """
     Fonction qui détermine pour chacun des points le noeud osm le plus proche
     
     La fonction prend en argument:
     - df = une dataframe pandas contenant les points géographiques qu'on 
-    cherche à relier et au moins les colonnes "Lon" (longitudes) et "Lat" (latitudes)
+    cherche à relier et au moins les colonnes "x" (longitudes) et "y" (latitudes)
     - G : le graphe osmnx de la région géographique sur laquelle on travaille. Par défaut,
     G est le graphe du réseau routier d'Ile-de-France
     
@@ -25,9 +25,9 @@ def nearest_nodes(df, G = G_idf):
     """
 
     n = df.shape[0]
-    Coord = list(zip(list(df["Lat"]), list(df["Lon"])))
+    Coord = list(zip(list(df["y"]), list(df["x"])))
     print(Coord)
-    Nearest_nodes = [ox.distance.get_nearest_node(G, Coord[i]) for i in range(n)]
+    Nearest_nodes = [ox.distance.get_nearest_node(Graph, Coord[i]) for i in range(n)]
     
     return Coord, Nearest_nodes
 
@@ -41,7 +41,7 @@ def itineraries(df, G = G_idf, critere_optim = 'length'):
     
     La fonction prend en argument :
     - df = une dataframe pandas contenant les points géographiques qu'on 
-    cherche à relier et au moins les colonnes "Lon" (longitudes) et "Lat" (latitudes)
+    cherche à relier et au moins les colonnes "x" (longitudes) et "y" (latitudes)
     - G : le graphe osmnx de la région géographique sur laquelle on travaille. Par défaut,
     G est le graphe du réseau routier d'Ile-de-France
     - critere : chaîne de caractère, indique le critère à optimiser pour trouver les 
