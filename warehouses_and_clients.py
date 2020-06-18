@@ -8,7 +8,7 @@ import geopandas
 # Graph of Ile-de-France
 
 df_nodes_idf = pd.read_csv("gdf_nodes_idf.csv")
-df_edges_idf = pd.read_csv("gdf_edges_idf.csv")
+df_edges_idf = pd.read_csv("gdf_edges_idf_simplified.csv")
 df_nodes_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
 df_edges_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
 

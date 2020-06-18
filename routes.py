@@ -4,7 +4,6 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import random
-import time
 
 from warehouses_and_clients import G_idf, n_nodes
 

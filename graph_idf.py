@@ -4,13 +4,22 @@ import networkx as nx
 import csv
 import geopandas
 
-#Création du graphe osmnx de l'Ile-de-France (fait une seule fois)
+# Graph of Ile-de-France
+G_idf_0 = ox.graph_from_place('Ile-de-France, France', network_type='drive', simplify=True)
 
-G_idf = ox.graph_from_place('Ile-de-France, France', network_type='drive', simplify=True)
+# Adding speeds and travel times to the graph's edges
+ox.speed.add_edge_speeds(G_idf_0)
+ox.speed.add_edge_travel_times(G_idf_0)
 
-gdf_nodes_idf, gdf_edges_idf = ox.graph_to_gdfs(G_idf)
-gdf_nodes_idf = gdf_nodes_idf.rename(columns = {'x':'Lon'}) 
-gdf_nodes_idf = gdf_nodes_idf.rename(columns = {'y':'Lat'})
+# Converting the graph into geodataframes
+gdf_nodes, gdf_edges = ox.graph_to_gdfs(G_idf_0)
+gdf_nodes = gdf_nodes.rename(columns = {'x':'Lon'}) 
+gdf_nodes = gdf_nodes.rename(columns = {'y':'Lat'})
 
-gdf_nodes_idf.to_csv("gdf_nodes_idf.csv")
-gdf_edges_idf.to_csv("gdf_edges_idf.csv")
+# Converting the geodataframes into csv files (in order to store the data)
+gdf_nodes.to_csv("gdf_nodes_idf.csv")
+gdf_edges.to_csv("gdf_edges_idf.csv")
+
+# Creating a smaller version of gdf_edges (in order to use it on GitHub)
+gdf_edges_simplified = gdf_edges.drop(labels=["highway","area","junction","bridge","access","tunnel","width","est_width", "ref", "maxspeed", "lanes", "service", "name"], axis=1)
+gdf_edges_simplified.to_csv("gdf_edges_idf_simplified.csv")
