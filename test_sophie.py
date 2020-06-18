@@ -17,3 +17,4 @@ G = Graph(g, warehouses, parcels, c)
 G.make_graph()
 G.generate_csv()
 
+
