@@ -4,8 +4,9 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import random
+import time
 
-from graph_idf import G_idf, gdf_nodes_idf, n_nodes
+from warehouses_and_clients import G_idf, n_nodes
 
 
 def nearest_nodes(df, G = G_idf):

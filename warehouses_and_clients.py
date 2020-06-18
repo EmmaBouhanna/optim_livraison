@@ -3,8 +3,22 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import random
+import geopandas
 
-from graph_idf import G_idf, gdf_nodes_idf, n_nodes
+# Graph of Ile-de-France
+
+df_nodes_idf = pd.read_csv("gdf_nodes_idf.csv")
+df_edges_idf = pd.read_csv("gdf_edges_idf.csv")
+df_nodes_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
+df_edges_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
+
+gdf_nodes_idf = geopandas.GeoDataFrame(df_nodes_idf)
+gdf_edges_idf = geopandas.GeoDataFrame(df_edges_idf)
+
+G_idf = ox.utils_graph.graph_from_gdfs(gdf_nodes_idf, gdf_edges_idf)
+
+n_nodes = nx.number_of_nodes(G_idf) 
+
 
 # Warehouses
 
@@ -13,7 +27,7 @@ df_warehouses = pd.read_csv("warehouses.csv", sep=";")
 
 # Random clients
 
-def random_clients(k, df = df_warehouses) :
+def random_clients(k, df = df_warehouses, G = G_idf) :
 
     """
     Fonction qui ajoute à une dataframe de points géographiques un certain nombre de points

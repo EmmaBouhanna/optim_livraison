@@ -23,3 +23,5 @@ my_map
 for i in range(n) :
     folium.Circle(radius=100, location=Coord[i], color='crimson', 
     fill=False).add_child(folium.Popup(f'{i}', show = False)).add_to(my_map)            
+
+G_idf
