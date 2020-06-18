@@ -154,7 +154,7 @@ def create_graph_components(k: int):
         destination = [localisations[i][0], localisations[i][1]]
         size = 0.01*np.random.randint(1, 100) # parcel sizes range from 10 cm^3 to 1 m^3
         random_draw = np.random.randint(0, w)
-        where_from = warehouses[w] """COM SANDRA : w-1 plutôt??"""
+        where_from = warehouses[w] #COM SANDRA : w-1 plutot?
         parcels.append(Colis(size, where_from, destination))
         
     return df, warehouses, parcels

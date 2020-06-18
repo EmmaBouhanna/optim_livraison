@@ -16,3 +16,4 @@ df, warehouses, parcels = create_graph_components(k)
 G = Graph(g, warehouses, parcels, c)
 G.make_graph()
 G.generate_csv()
+
