@@ -162,9 +162,9 @@ def dist (n1: Node, n2: Node, G:Graph, df):
     coords, dist_matrix, itineraries = itineraries(df, G = G_idf, critere_optim = 'length')
     
     if isinstance(n1, Garage):
-        dist = 1234 # cout de Emma??
+        dist = 0 # cout de Emma??
     elif isinstance(n2, Garage):
-        dist = 1234
+        dist = 0
     else:
         for el in coords:
             if n1.lat == el[0] and n1.long == el[1]:

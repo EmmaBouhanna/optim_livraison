@@ -1,8 +1,8 @@
 from __init__ import *
 
 service_time = (1/6) # 10 min lost per delivery
-time_work = 8 # number of work hours
-cost_dist = 1/50 # coût temporel par unité de distance
+time_work = 8.0 # number of work hours
+cost_dist = 1.0 # coût par unité de temps
 
 '''
 def truck_division(file_properties):
@@ -43,7 +43,7 @@ def truck_division(file_properties):
     
 
 
-def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost, serviceTime = service_time):
+def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost = 0.0, unitCost = cost_dist, serviceTime = service_time):
     """
     Decoding individual to route
 
@@ -54,7 +54,8 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
     - distance_matrix : dataframe containing the distances between client i and client j (the cost to travel from i to j)
     - vehicle capacity (float) : total volume that can be loaded in the trucks (every truck have the same capacity for the moment)
     - max_vehicle (int) : number of trucks in the warehouse at the beginning of the day
-    - initCost : time to go from the garage to the warehouse (part of a worker's day)
+    - init_cost (float) : in case we want to include the trip from home to work to the worker's day 
+    (default = 0)
     - serviceTime : time lost per delivery
 
     Output : a list of lists containing the route of each truck from the warehouse and back to it at the end of the day
@@ -72,8 +73,8 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
         demand = instance['demand'][customerID]
         updatedVehicleLoad = vehicleLoad + demand
         # Update elapsed time
-        returnTime = distance_matrix[customerID][0] #distance_matrix = distance entre i et j
-        updatedElapsedTime = elapsedTime + distance_matrix[lastCustomerID][customerID] + serviceTime + returnTime
+        returnTime = distance_matrix[customerID][0]*unitCost #distance_matrix = distance entre i et j
+        updatedElapsedTime = elapsedTime + distance_matrix[lastCustomerID][customerID]*unitCost + serviceTime + returnTime
         # Validate vehicle load and elapsed time
         if (updatedVehicleLoad <= vehicleCapacity) and (updatedElapsedTime <= time_work):
             # Add to current sub-route
@@ -87,7 +88,7 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
             # Initialize a new sub-route and add to it
             subRoute = [0, customerID]
             vehicleLoad = demand
-            elapsedTime = distance_matrix[0][customerID] + serviceTime
+            elapsedTime = distance_matrix[0][customerID]*unitCost + serviceTime
         # Update last customer ID
         lastCustomerID = customerID
     if subRoute != []:
@@ -132,13 +133,14 @@ def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehic
     - distance_matrix : dataframe containing the distances between client i and client j (the cost to travel from i to j)
     - vehicle capacity (float) : total volume that can be loaded in the trucks (every truck have the same capacity for the moment)
     - unitCost (float) : cost of 1 unity of movement
-    - initCost (float) : cost to travel from the garage to the warehouse (part of a worker's day) (default = 0)
-    
+    - init_cost (float) : in case we want to include the trip from home to work to the worker's day 
+    (default = 0)
+
     Output : Fitness (1/Cost)
     """
     totalCost = 0
    
-    route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost)
+    route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost = 0.0)
     
     totalCost = 0
     for subRoute in route:
@@ -205,8 +207,8 @@ def mut_inverse_indexes(individual):
 
 
 
-def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, init_cost, ind_size, pop_size, \
-    cx_pb, mut_pb, n_gen, unit_cost = cost_dist):
+def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, ind_size, pop_size, \
+    cx_pb, mut_pb, n_gen, init_cost = 0.0, unit_cost = cost_dist):
     """
     Genetic algorithm which combines all the step of the process of evolution
 
@@ -215,14 +217,14 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, init_cos
     - distance_matrix : dataframe containing the distances between client i and client j (the cost to travel from i to j)
     - vehicle capacity (float) : total volume that can be loaded in the trucks (every truck have the same capacity for the moment)
     - max_vehicle (int) : number of trucks in the warehouse at the beginning of the day
-    - unit_cost (float) : cost of 1 unity of movement
-    - init_cost (float) : time to go from the garage to the warehouse (part of a worker's day) (default = 0)
     - ind_size (int) : number of clients
     - pop_size (int) : size of the population
     - cx_pb (float) : probability of crossover
     - mut_pb(float) : probability of mutation
     - n_gen (int) : number of generations
-
+    - init_cost (float) : in case we want to include the trip from home to work to the worker's day 
+    (default = 0)
+    - unit_cost (float) : temporal cost of 1 unity of distance
     """
 
     creator.create("FitnessMax", base.Fitness, weights = (1.0,) ) #Positive weights because we intend to maximise fitness
