@@ -178,10 +178,11 @@ def cx_partialy_matched(ind1, ind2):
     size = min(len(ind1), len(ind2))
     try:
         cxpoint1, cxpoint2 = sorted(random.sample(range(size), 2))
+        print(cxpoint1,cxpoint2)
     except ValueError:
         print('Error : Only one package to deliver')
     temp1 = ind1[cxpoint1:cxpoint2+1] + ind2
-    temp2 = ind1[cxpoint1:cxpoint2+1] + ind1
+    temp2 = ind2[cxpoint1:cxpoint2+1] + ind1
     ind1 = []
     for gene in temp1:
         if gene not in ind1:
@@ -191,6 +192,7 @@ def cx_partialy_matched(ind1, ind2):
         if gene not in ind2:
             ind2.append(gene)
     return ind1, ind2
+print(cx_partialy_matched([1,4,3,6,5,2],[4,3,5,2,1,6]))
 
 def mut_inverse_indexes(individual):
     '''
