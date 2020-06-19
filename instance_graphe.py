@@ -1,4 +1,5 @@
 from graphe import *
+
 g = Garage (150, 50, 40, 60)
 e1 = Entrepot (100, 100, 10, 15, 5000)
 e2 = Entrepot (200, 100, 20, 10, 4000)
@@ -13,9 +14,11 @@ p7 = Colis (25, e3, [133, 123])
 entrepots = [e1, e2, e3]
 points_relais = []
 paquets = [p1, p2, p3, p4, p5, p6, p7]
-G = Graph(g, entrepots, points_relais, paquets)
+c = Camion(50, 0, 10000)
+G = Graph(g, entrepots, paquets, c)
 G.make_graph()
-G.garage.children[0].children
-trace_graph(G)
+print(G.garage.children[0].children)
+print(p3)
+#trace_graph(G)
 file_names = G.generate_csv()
 print(file_names)
