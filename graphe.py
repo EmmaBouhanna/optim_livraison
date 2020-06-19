@@ -280,13 +280,16 @@ class Graph:
                         p.client.new_child(pp.client)
         
     
-    def generate_csv(self):
+    def generate_csv(self, df = None):
         """
         Class method used to generate csv files that are going to be used in 
         the third step (optimization of the delivery). One csv file is created
         for each warehouse thanks to the method csv_entrepot.
         The method also stores the number of trucks that leave the garage as 
         well as the number of clients to be delivered.
+        
+        :param df: dataframe to get the true distance
+        :type df: pandas dataframe
         
         :return: a list containg the names of the csv files, the number of 
         trucks and the number of clients
@@ -319,6 +322,8 @@ def csv_entrepot(e, numero: int, df = None):
     :type e: Warehouse (Node)
     :param numero: number of the warehouse (used in generate_csv)
     :type numero: int
+    :param df: dataframe to get the true distance
+    :type df: pandas dataframe
     
     :return: csv file in the folder "input_data"
     """
@@ -393,7 +398,24 @@ def create_graph_components(k: int):
         
     return df, warehouses, parcels
 
+
 def dist (n1: Node, n2: Node, df = None):
+    """
+    Method that returns the distance between two nodes.
+    If the graph is built thanks to real data, the distance returned is the one
+    corresponding to the itinerary between the two nodes. If not, it is the 
+    euclidean distance.
+    
+    :param n1: first node
+    :type n1: Node
+    :param n2: second node
+    :type n2: Node
+    :param df: dataframe to get the true distance
+    :type df: pandas dataframe
+    
+    :return: distance to go from n1 to n2 (oriented edge)
+    :rtype: float
+    """
     if df == None: # for an example without using real data
         dist = np.sqrt((n1.lat -n2.lat)**2 + (n1.long -n2.long)**2)
         
