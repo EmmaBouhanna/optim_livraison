@@ -5,7 +5,8 @@ Created on Wed Jun 17 21:40:09 2020
 
 @author: sophierossi
 """
-from graphe_copie_ import *
+
+from graphe_copy import *
 
 g = Garage (2.2728354, 48.8281142997349, 40, 60)
 c = Camion(50, 0, 10000)

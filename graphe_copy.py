@@ -1,4 +1,4 @@
-from __init__ import * 
+from __init__copy import * 
 from warehouses_clients import *
 from routes import *
 
@@ -348,7 +348,7 @@ def csv_entrepot(e, numero: int, df = None):
         names.append(ch)
     df = pd.DataFrame(L, columns = names)
     name = "entrepot_"+str(numero)+".csv"
-    csv = df.to_csv(os.path.join('input_data', name))
+    csv = df.to_csv(os.path.join(PATH, 'input_data', name))
     return (csv)    
     
 
