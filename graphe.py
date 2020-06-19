@@ -1,20 +1,67 @@
-from __init__ import *
-from warehouses_and_clients import *
-from routes import *
+from __init__ import * 
+#from warehouses_and_clients import *
+#from routes import *
+
+"""
+SECOND STEP: Building a graph containing all the information about warehouses,
+parcels and clients
+
+This file contains all the classes and methods used to build the graph from 
+the geographical locations of clients and warehouses obtained in the first step. 
+"""
 
 class Node:
+    """
+    The class Node is the basic class for all nodes of the graph.
+    Concretely, a node represents one geographical point in the city that 
+    corresponds to a client, a warehouse ...
+    Consquently, there will be different kinds of nodes (Entrepot, Client, Colis, Garage), 
+    which will all inherit from Node.
+    
+    A Node is simply defined by its geograohical location: so by latitude and 
+    longitude. 
+    """
+    
     def __init__(self, lat : float, long : float):
+        """
+        :param lat: latitude
+        :type lat: float
+        :param long: longitude
+        :type long: float
+        
+        :attribute id: unique identifier generated thanks to the UIID python
+        library
+        :type id: uuid
+        :attribute children: list of children nodes
+        :type children: [Node]
+        """
         self.id = uuid4()
         self.lat = lat
         self.long = long
-        self.children = []  # dico où les cles sont les identifiants, les valeurs [id,  et les valeurs le poids des aretes
+        self.children = [] 
     
     
-    def new_child(self, node):  # crée un fils 
-        # distance au père est la distance euclidienne
+    def new_child(self, node):
+        """
+        Class method which adds a child to the children list when applied to a
+        Node.
+        
+        :param node: child node to be added
+        :type node: Node
+        """
         self.children.append(node)
     
     def __eq__(self, node):
+        """
+        Redefinition of equality for nodes
+        Two nodes are equal if they have the same identifier.
+        
+        :param node: node to be compared with
+        :type node: Node
+        
+        :return: True if the nodes are equal, False if they aren't
+        :rtype: boolean
+        """
         if self.id == node.id:
             return True
         else:
@@ -22,7 +69,20 @@ class Node:
 
 
 class Client(Node): 
-    def __init__(self, lat : float, long : float, size = None): # pour le moment 1 colis par client!!!
+    """
+    Subclass of Node representing clients.
+    A client will (almost) always be created starting from a parcel. 
+    This class is essentially used in the implementation of the graph's 
+    visualization.
+    """
+    
+    def __init__(self, lat : float, long : float, size = None):
+        """
+        Almost the same __init__ of the upper class: there is an additional attribute.
+        
+        :attribute taille_colis: size of a client's parcel
+        :type taille_colis: int (if not None)
+        """
         self.id = uuid4()
         self.lat = lat
         self.long = long
@@ -30,12 +90,45 @@ class Client(Node):
         self.children = []
     
 def make_client(lat : float, long : float, size: int):
+    """
+    Method to build a client.
+    
+    :param lat: latitude
+    :type lat: float
+    :param long: longitude
+    :type long: float
+    :param size: size of the client's parcel (in m^3)
+    :type size: int
+    
+    :return: a new Client 
+    :rtype: Client (Node) 
+    """
     new_client = Client(lat, long, size)
     return new_client
     
     
 class Colis(Node):
-    def __init__(self, size, entrepot: Node, destination):
+    """
+    Subclass of Node representing parcels.
+    Contrary to other nodes, it has no geographical coordinates as attributes
+    since a parcel will travel from the warehouse up to a client.
+    """
+    
+    def __init__(self, size: int, entrepot, destination):
+        """
+        __init__ builds an object with more attributes than the upper class.
+        
+        :param destination: coordinates of the client who bought the parcel
+        :type destination: list of floats (lenght = 2)
+        
+        
+        :attribut size: parcel's size (in m^3)
+        :type size: int
+        :attribute entrepot: warehouse where the parcel is stored
+        :type entrepot: Entrepot (Node)
+        :attribute client: client who bought the parcel
+        :type client: Client (Node)
+        """
         self.id = uuid4()
         self.size = size
         self.entrepot = entrepot
@@ -44,7 +137,17 @@ class Colis(Node):
         
 
 class Garage(Node):
+    """
+    Subclass of Node representing a garage.
+    """
+    
     def __init__(self, lat: float, long: float, nb_camions: int, nb_legers: int):
+        """
+        :attribute nb_camions: maximum number of trucks in the garage
+        :type nb_camions: int
+        :attribute nb_legers: maximum number of light/small trucks in the garage
+        :type nb_legers: int
+        """
         self.id = uuid4()
         self.lat = lat
         self.long = long
@@ -53,8 +156,20 @@ class Garage(Node):
         self.children = []
 
 class Entrepot(Node):
+    """
+    Subclass of Node representing a warehouse.
+    """
+    
     def __init__(self, lat : float, long : float, max_camions : int, max_legers: int, capacite : int):
-        self.id = uuid4() # retrouver comment faire des identifiants uniques (avec un itérable?)
+        """
+        :attribute max_camions: maximum number of trucks
+        :type max_camions: int
+        :attribute max_legers: maximum number of light/small trucks
+        :type max_legers: int
+        :attribute capacite: storage capacity of the warehouse (in m^3)
+        :type capacite: int
+        """
+        self.id = uuid4()
         self.lat = lat
         self.long = long
         self.children = []
@@ -65,29 +180,75 @@ class Entrepot(Node):
 
 
 class Vehicule:
+    """ 
+    Generic class for all vehicles. 
+    For the moment, our algorithm only optimizes the delivery network by using 
+    trucks. Further developments can lead to use bycicles, smaller trucks...
+    """
     def __init__(self, capacite, pollution, dist_max, temps, route_etroite : bool):
+        """
+        :attribute capacite: maximum load capacity of the vehicle (in m^3)
+        :type capacite: int
+        :attribute pollution: malus/bonus due to the high/low carbone emissions
+        of the vehicle
+        :type pollution: float
+        :attribute dist_max: maximum distance that can be traveled with one 
+        refueling
+        :type dist_max: int
+        :attribute temps: time of the driver
+        :type temps: float
+        :attribute route_etroite: True if the vehicle can go in narrow streets,
+        False if not
+        :type route_etroite: boolean
+        """
         self.capacite = capacite
         self.pollution = pollution
         self.dist_max = dist_max
         self.route_etroite = route_etroite
-        self.temps = temps # temps du camioneur 
+        self.temps = temps 
 
 class Camion(Vehicule):
+    """
+    Subclass of Vehicle representing trucks.
+    """
     def __init__(self, capacite, pollution, dist_max, route_etroite = False):
         self.capacite = capacite
         self.pollution = pollution
         self.dist_max = dist_max
         self.route_etroite = route_etroite
-        
-class Leger(Vehicule):
-    def __init__(self, capacite, pollution = 0, dist_max = 10, route_etroite = True):
-        self.capacite = capacite
-        self.pollution = pollution
-        self.dist_max = dist_max
-        self.route_etroite = route_etroite    
 
 class Graph:
+    """
+    Class representing a graph whose nodes are garages, warehouses and clients.
+    
+    Structure: there are 3 genrations in the graph:
+    1. The garage is the root: its children are warehouses
+    2. Warehouses: its children are clients
+    3. Clients
+    
+    How to build the graph thanks to the data collected during the first step 
+    (an example is given in the test file):
+    1. call the function create_graph_components
+    2. call the function make_graph
+    3. if you want to see a schematic representation of the graph, call 
+    trace_graph
+    4. call generate_csv to transform the graph into a csv file to be used in 
+    the third step
+    """
+    
     def __init__(self, garage, entrepots: [Entrepot], colis: [Colis], camion : [Camion]):
+        """
+        :attribute garage: the root
+        :type garage: Garage (Node)
+        :attribute entrepots: list of warehouses where the parcels are stored
+        :type entrepots: list of Entrepot (Node)
+        :attribute colis: list of all parcels to be delivered
+        :type colis: list of Colis (Node)
+        :attribute camion: list of trucks that will be used for the delivery
+        :type camions: list of Camion (Vehicle)
+        :attribute k: number of clients
+        :type k: int
+        """
         self.garage = garage #la racine 
         self.entrepots = entrepots # liste des entrepots (fixée)
         self.colis = colis # liste des colis à livrer le jour n
@@ -97,25 +258,42 @@ class Graph:
 
         
     def make_graph(self):
-        # self.graph_list.append(self.garage)
+        """
+        Class method used to build the graph from its components. 
+        
+        We start from the root (garage) and we successively add the warehouses
+        (garage's children) and the clients (warehouses's children).
+        All clients whose parcels come from the same house are children to each
+        other. Indeed we want to be able to go from any of them to another one
+        in order to then determine the best itinerary.
+        """
         for e in self.entrepots:
-            self.garage.new_child(e) # arete orientée du garage vers l'entrepot
-            colis_e = [] # liste des paquets qui partent de e
+            self.garage.new_child(e) # edge oriented from the garage to the warehouse
+            colis_e = [] # list of parcels stored in the warehouse e
             for p in self.colis:
                 if p.entrepot == e:
                     colis_e.append(p)
             for p in colis_e:
-                e.new_child(p.client) # arete orientée de l'entrepot vers le client
+                e.new_child(p.client) # edge oriented from the warehouse to the client
                 for pp in colis_e:
                     if pp.id != p.id:
-                        p.client.new_child(pp.client) # NB: pour le moment on "perd" le paquet dans la construction du graphe
+                        p.client.new_child(pp.client)
         
     
     def generate_csv(self):
+        """
+        Class method used to generate csv files that are going to be used in 
+        the third step (optimization of the delivery). One csv file is created
+        for each warehouse thanks to the method csv_entrepot.
+        The method also stores the number of trucks that leave the garage as 
+        well as the number of clients to be delivered.
+        
+        :return: a list containg the names of the csv files, the number of 
+        trucks and the number of clients
+        :rtype: list
+        """
         numero = 1
         file_names = []
-        
-        # pour stocker le nombre de camions qui sortent du garage, ainsi que le nombre de clients à livrer
         for e in self.entrepots:
             csv_entrepot(e, numero)
             name = "entrepot_"+str(numero)+".csv"
@@ -126,10 +304,66 @@ class Graph:
         file_names.append(self.camion.capacite)
         return file_names
     
+
+def csv_entrepot(e, numero: int, df = None):
+    """
+    This method creates, for the warehouse given as an argument, a csv file 
+    contaning the following elements:
+    1. columns: [dentifier, demand, latitude, longitude, warehouse, client_1, ..., 
+    client_k]
+    2. rows: [warehouse, client_1, ..., client_k]
+    3. For i in [0, k] and j in [4, 4+k], the cell [i, j] gives the distance 
+    to go from the node i to the node j
+    
+    :param e: warehouse
+    :type e: Warehouse (Node)
+    :param numero: number of the warehouse (used in generate_csv)
+    :type numero: int
+    
+    :return: csv file in the folder "input_data"
+    """
+    
+    L = [] # L is a list of lists
+    # First element of L corresponds to the warehouse's data
+    l = [e.id, 0, e.lat, e.long]
+    tree_nodes = [e]+e.children
+    for n in tree_nodes:
+        l.append(dist(e, n, df))
+    L.append(l)
+    # All other elements of L correspond to the clients' data
+    for client in e.children:
+        l = [client.id, client.taille_colis, client.lat, client.long]
+        for n in tree_nodes:
+            l.append(dist(client, n, df)) # distance from the node client to the node n
+        L.append(l)
+    names = ["Identifiant", "Demande", "latitude", "longitude", "entrepot"]
+    tree_nodes.pop(0)
+    for i in range(len(e.children)):
+        ch = "client "+ str(i+1)
+        names.append(ch)
+    df = pd.DataFrame(L, columns = names)
+    name = "entrepot_"+str(numero)+".csv"
+    csv = df.to_csv(os.path.join(PATH, 'input_data', name))
+    return (csv)    
     
 
 
 def create_graph_components(k: int):
+    """
+    Method that creates warehouses and parcels from the data collected in the
+    first step.
+    1. call random_clients to get the dataframe of all warehouses and k clients
+    as well as the list of indexes (saying where warehouses/clients start/end 
+    in the dataframe)
+    2. create all warehouses
+    3. create all parcels (and clients)
+    
+    :param k: number of parcels
+    :type k: int
+    
+    :return: dataframe, warehouses and parcels
+    :rtype: dataframe pandas, [Entrepot], [Colis]
+    """
     df, indexes = random_clients(k, df = df_warehouses)
     localisations = df.values.tolist()
     index_start_warehouses = indexes[0][0]
@@ -151,53 +385,36 @@ def create_graph_components(k: int):
     parcels = []
     for i in range(index_start_clients, index_end_clients + 1):
         destination = [localisations[i][0], localisations[i][1]]
+        # parcel's size is random
         size = 0.01*np.random.randint(1, 100) # parcel sizes range from 10 cm^3 to 1 m^3
         random_draw = np.random.randint(0, w)
-        where_from = warehouses[w] #COM SANDRA : w-1 plutot?
+        where_from = warehouses[w]
         parcels.append(Colis(size, where_from, destination))
         
     return df, warehouses, parcels
 
-def dist (n1: Node, n2: Node, G:Graph, df):
-    coords, dist_matrix, itineraries = itineraries(df, G = G_idf, critere_optim = 'length')
-    
-    if isinstance(n1, Garage):
-        dist = 0 # cout de Emma??
-    elif isinstance(n2, Garage):
-        dist = 0
+def dist (n1: Node, n2: Node, df = None):
+    if df == None: # for an example without using real data
+        dist = np.sqrt((n1.lat -n2.lat)**2 + (n1.long -n2.long)**2)
+        
     else:
-        for el in coords:
-            if n1.lat == el[0] and n1.long == el[1]:
-                i = coords.index((n1.lat, n1.long))
-            if n2.lat == el[0] and n2.long == el[1]:
-                j = coords.index((n1.lat, n1.long))
-        dist = dist_matrix[i][j]
+        coords, dist_matrix, itineraries = itineraries(df, G = G_idf, critere_optim = 'length')
+        
+        if isinstance(n1, Garage):
+            dist = 0 
+        elif isinstance(n2, Garage):
+            dist = 0
+        else:
+            for el in coords:
+                if n1.lat == el[0] and n1.long == el[1]:
+                    i = coords.index((n1.lat, n1.long))
+                if n2.lat == el[0] and n2.long == el[1]:
+                    j = coords.index((n1.lat, n1.long))
+            dist = dist_matrix[i][j]
+    
     return(dist)
 
-def csv_entrepot(e, numero: int):
-    # L est une liste de listes
-    L = []
-    # 1èr élément de la liste correspond aux données de l'entrepot
-    l = [e.id, 0, e.lat, e.long]
-    tree_nodes = [e]+e.children
-    for n in tree_nodes:
-        l.append(dist(e, n))
-    L.append(l)
-    # les autres éléments de L correspondent aux données des clients de l'entrepot
-    for client in e.children:
-        l = [client.id, client.taille_colis, client.lat, client.long]
-        for n in tree_nodes:
-            l.append(dist(client, n)) # convention: route du noeud client vers l'autre noeud
-        L.append(l)
-    names = ["Identifiant", "Demande", "latitude", "longitude", "entrepot"]
-    tree_nodes.pop(0)
-    for i in range(len(e.children)):
-        ch = "client "+ str(i+1)
-        names.append(ch)
-    df = pd.DataFrame(L, columns = names)
-    name = "entrepot_"+str(numero)+".csv"
-    csv = df.to_csv(os.path.join(PATH, 'input_data', name))
-    return (csv)
+
 
 ''' Je commente ce passage parce que cela ne marche pas sur mon ordi'''
 # def trace_graph(graph):
