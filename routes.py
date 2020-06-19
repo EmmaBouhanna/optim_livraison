@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 import random
 
-from warehouses_and_clients import G_idf, n_nodes
+import warehouses_clients
 
 
-def nearest_nodes(df, Graph = G_idf):
+def nearest_nodes(gdf, G = G_idf):
 
     """
     Fonction qui détermine pour chacun des points le noeud osm le plus proche
@@ -24,10 +24,10 @@ def nearest_nodes(df, Graph = G_idf):
     - Nearest_nodes : la liste des noeuds les plus proches
     """
 
-    n = df.shape[0]
-    Coord = list(zip(list(df["y"]), list(df["x"])))
-    print(Coord)
-    Nearest_nodes = [ox.distance.get_nearest_node(Graph, Coord[i]) for i in range(n)]
+    n = gdf.shape[0]
+
+    Coord = list(zip(list(gdf['y']), list(gdf['x'])))
+    Nearest_nodes = [ox.distance.get_nearest_node(G, Coord[i]) for i in range(n)]
     
     return Coord, Nearest_nodes
 
@@ -75,5 +75,3 @@ def itineraries(df, G = G_idf, critere_optim = 'length'):
             Tableau_distances[i, j] = distance
 
     return Coord, Tableau_distances, Itineraires
-
-

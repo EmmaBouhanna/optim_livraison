@@ -6,16 +6,17 @@ import pandas as pd
 import random
 import folium
 
-from routes import nearest_nodes
-from warehouses_and_clients import random_clients
-from warehouses_and_clients import G_idf, gdf_nodes_idf, gdf_edges_idf
-from routes import itineraries, nearest_nodes
+from warehouses_clients import G_idf
+import warehouses_clients
+import routes
 
 df_1 = pd.read_csv("warehouses.csv", sep=";")
-df_1
 
-Coord, Nodes = nearest_nodes(df_1)
-n = df_1.shape[0]
+nearest_nodes(df_1)
+
+df_all = random_clients(20)
+
+itineraries(df_1)
 
 centre_Paris = [48.861146, 2.345721]
 my_map = folium.Map(location = centre_Paris, tiles='Stamen Toner', zoom_start = 9, control_scale=True)
@@ -33,3 +34,5 @@ df_complete = random_clients(30)[0]
 coord, tableau, itineraires = itineraries(df_complete, critere_optim="travel_time")
 
 nearest_nodes(df)
+
+ox.plot_graph(G_car)
