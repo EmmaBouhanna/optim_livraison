@@ -10,29 +10,58 @@ from warehouses_clients import G_idf
 import warehouses_clients
 import routes
 
+
+## Test - 20 entrepôts, 30 clients
+
 df_1 = pd.read_csv("warehouses.csv", sep=";")
+df_complete = random_clients(30, df_1)[0]
+coord_, tableau_, itineraires_ = itineraries(df_complete, critere_optim="travel_time")
 
-nearest_nodes(df_1)
+# ==> beaucoup trop long à exécuter ! 
+# En attendant de trouver une solution, on sauvegarde les données calculées pour pouvoir travailler dessus
 
-df_all = random_clients(20)
+#Pour sauvegarder la dataframe
 
-itineraries(df_1)
+df_complete.to_csv ('df_warehouses_and_clients_example.csv' , index = False)
+#pour inverser l'opération : df_complete = pd.read_csv('df_warehouses_and_clients_example.csv')
 
-centre_Paris = [48.861146, 2.345721]
-my_map = folium.Map(location = centre_Paris, tiles='Stamen Toner', zoom_start = 9, control_scale=True)
 
-my_map
+#Pour sauvegarder le tableau des temps de trajets
 
-for i in range(n) :
-    folium.Circle(radius=100, location=Coord[i], color='crimson', 
-    fill=False).add_child(folium.Popup(f'{i}', show = False)).add_to(my_map)            
+np.savetxt("travel_times_array_example.csv", tableau_, delimiter=",")
+#pour inverser l'opération : np.genfromtxt("travel_times_array_example.csv", delimiter=',')
 
-gdf_edges_idf
+#Pour sauvegarder le dictionnaire des itinéraires
 
-df_complete = random_clients(30)[0]
+with open('itineraries_dict_example.csv', 'w') as f:  
+    w = csv.DictWriter(f, itineraires_.keys())
+    w.writeheader()
+    w.writerow(itineraires_)
 
-coord, tableau, itineraires = itineraries(df_complete, critere_optim="travel_time")
+"""Pour inverser l'opération : 
+df_example = pd.read_csv('itineraries_dict_example.csv', header=None)
+dict_example = {}
+for i in range(df_example.shape[1]) :
+    dict_example[df_example[i][0]] = df_example[i][1]
 
-nearest_nodes(df)
+Note : il y a des guillemets autour des tuples lorsqu'on inverse l'opération"""
 
-ox.plot_graph(G_car)
+#Pour sauvegarder la liste des coordonées des points
+
+"""Elle se déduit de la dataframe !!
+coord_example = list(zip(list(df_complete['y']), list(df_complete['x'])))"""
+
+from graphe import *
+from warehouses_clients import *
+
+g = Garage (2.2728354, 48.8281142997349, 40, 60)
+c = Camion(50, 0, 10000)
+
+k = 10 # choose number of clients
+df, warehouses = create_graph_components(k)
+
+G = Graph(g, warehouses, parcels, c)
+G.make_graph()
+G.generate_csv(df)
+
+

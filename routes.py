@@ -4,7 +4,9 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import random
+import time
 
+from warehouses_clients import G_idf
 import warehouses_clients
 
 
@@ -58,6 +60,8 @@ def itineraries(df, G = G_idf, critere_optim = 'length'):
         -> valeur : (route sous forme de liste de osm nodes, distance de cette route)
     """
 
+    start_time = time.time()
+
     n = df.shape[0]
 
     Tableau_distances = np.zeros((n, n))
@@ -66,12 +70,14 @@ def itineraries(df, G = G_idf, critere_optim = 'length'):
     Coord, Nearest_nodes = nearest_nodes(df, G)
 
     for i in range(n) :
+        print("boucle", i)
+        print("Temps d execution : %s secondes ---" % (time.time() - start_time))
         depart = Nearest_nodes[i]
         for j in range(n):
             arrivee = Nearest_nodes[j]
             route = nx.shortest_path(G, depart, arrivee, weight=critere_optim)
-            distance = int(sum(ox.utils_graph.get_route_edge_attributes(G, route, 'length')))
+            distance = int(sum(ox.utils_graph.get_route_edge_attributes(G, route, 'travel_time')))
             Itineraires[(i, j)] = route, distance
             Tableau_distances[i, j] = distance
-
+    print("Temps d execution total : %s secondes ---" % (time.time() - start_time))
     return Coord, Tableau_distances, Itineraires
