@@ -5,6 +5,9 @@ time_work = 8.0 # number of work hours
 cost_dist = 1/3600 # coût par unité de temps
 
 '''
+This part is coded in case we want to consider that all the trucks don't start their day directly
+in the warehouse
+
 def truck_division(file_properties):
     """
     Trucks that come from the garage are divided into the warehouses before starting their deliveries.
@@ -295,7 +298,7 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, ind_size
     
     print('start of evolution')
     fitnesses = list(map(toolbox.evaluate, pop))
-    for ind, fit in zip(pop, fitnesses): #JKeep track of each indiviual's cost as attributes of creator Individual
+    for ind, fit in zip(pop, fitnesses): #Keep track of each indiviual's cost as attributes of creator Individual
         ind.fitness.values = (fit,)
     print(f'Evaluated {len(pop)} individuals')
 
@@ -364,7 +367,7 @@ def decode_to_GPS(liste_res, instances):
         res.to_csv(os.path.join(PATH,'output_data',name))
 
 
-def results_vrptw(garage, truck, number_clients):
+def simulation_vrptw(garage, truck, number_clients):
     '''
     Produce the results of the algorithm using a graph and all the funcntions implemented before
 
