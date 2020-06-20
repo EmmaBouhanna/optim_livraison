@@ -1,8 +1,8 @@
 from __init__ import *
-# from graphe import * (à décommenter)
+from graphe import * 
 service_time = (1/6) # 10 min lost per delivery
 time_work = 8.0 # number of work hours
-cost_dist = 1.0 # coût par unité de temps
+cost_dist = 1/3600 # coût par unité de temps
 
 '''
 def truck_division(file_properties):
@@ -238,10 +238,11 @@ def mut_inverse_indexes(individual):
     '''
 
     start, stop = sorted(random.sample(range(len(individual)), 2))
-    individual = individual[:start] + individual[stop:start-1:-1] + individual[stop+1:]
+    print(start, stop)
+    individual = individual[:start + 1] + individual[stop:start:-1] + individual[stop+1:]
     return (individual, )
 
-
+print(mut_inverse_indexes([1,2,3,4,5,6,7,8,9]))
 
 
 def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, ind_size, pop_size, \
@@ -331,13 +332,14 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, ind_size
 
         # The population is entirely replaced by the offspring
         pop[:] = offspring
+        best_ind = tools.selBest(pop, 1)[0]  #returns a list containing the k best individuals among the population, here the best one
+        print(f'Best Fitness at Generation {gen}: {best_ind.fitness.values[0]}')
 
     print('-- End of (successful) evolution --')
     best_ind = tools.selBest(pop, 1)[0]  #returns a list containing the k best individuals among the population, here the best one
     print(f'Best individual: {best_ind}')
-    print(f'Fitness: {best_ind.fitness.values[0]}')
     print(f'Total cost: {1 / best_ind.fitness.values[0]}')
-    return( ind2route(best_ind, instance, distance_matrix, vehicle_capacity, max_vehicle, init_cost))
+    return( ind2route(best_ind, instance, distance_matrix, vehicle_capacity, max_vehicle)))
 
 def decode_to_GPS(liste_res, instances):
     """
@@ -385,9 +387,9 @@ def results_vrptw(garage, truck, number_clients):
     instances = [] #listes pour regrouper les résultats par entrepot
     liste_res =[]
     for (i, file) in enumerate(file_properties[::3]):
-        instance = pd.read_csv(os.path.join(PATH, 'input_data', file))
-            if instance.shape[0]>2 :
-                instances += [instance]
+        instance = pd.read_csv(os.path.join(PATH, 'input_data_test_main', file))
+        if instance.shape[0]>2 :
+            instances += [instance]
         print(instance.head())
         max_vehicle = trucks[i]
         instance_bis = instance.drop(['Unnamed: 0', 'Identifiant', 'latitude', 'longitude'], axis = 'columns')
