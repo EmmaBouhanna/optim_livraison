@@ -1,5 +1,5 @@
 from __init__ import *
-
+# from graphe import * (à décommenter)
 service_time = (1/6) # 10 min lost per delivery
 time_work = 8.0 # number of work hours
 cost_dist = 1.0 # coût par unité de temps
@@ -40,7 +40,44 @@ def truck_division(file_properties):
     return(number_truck_per_warehouse)
 
 '''
-    
+def no_client_to_deliver(file):
+    '''
+    Determines if there are packages to deliver from each warehouse at the beginning of the day
+
+    Input :  file (list) containing the names of the warehouses, the maximal number of trucks 
+    allowed in each warehouse and the number of deliveries per warehouse.
+    Output : file_2 (list) containing the names of the warehouse, the maximal number of trucks 
+    allowed in each warehouse and the number of deliveries per warehouse if non zero.
+    '''
+    file_2 = []
+    for i in range(1, len(file)//3 +1):
+        if file[3*i-1] != 0:
+            file_2.append(file[3*(i-1)])
+            file_2.append(file[3*i-2])
+            file_2.append(file[3*i-1])
+    return(file_2)
+
+def one_client_to_deliver(file):
+    '''
+    Solve the problem directly if there is only one client to deliver by exporting csv containg the results
+
+    Input : file (list) containing the names of the warehouses, the maximal number of trucks 
+    allowed in each warehouse and the number of deliveries per warehouse.
+    Output : file (list) containing the names of the warehouses, the maximal number of trucks 
+    allowed in each warehouse and the number of deliveries per warehouse if non 1
+    '''
+    file_2 = []
+    for i in range(1, len(file)//3 +1):
+        if file[3*i-1] == 1:
+            instance = pd.read_csv(os.path.join(PATH,'input_data_test_main',file[3*(i-1)]))
+            columns_res = ['Camion 1']
+            res = [(instance['latitude'][i], instance['longitude'][i]) for i in [0,1,0]]
+            res = pd.DataFrame(res, columns = columns_res)
+            res.to_csv(os.path.join(PATH,'output_data',file[3*(i-1)]))
+        else :
+            file_2 += file[3*(i-1):3*i]
+    return(file_2)
+
 
 
 def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost = 0.0, unitCost = cost_dist, serviceTime = service_time):
@@ -178,7 +215,6 @@ def cx_partialy_matched(ind1, ind2):
     size = min(len(ind1), len(ind2))
     try:
         cxpoint1, cxpoint2 = sorted(random.sample(range(size), 2))
-        print(cxpoint1,cxpoint2)
     except ValueError:
         print('Error : Only one package to deliver')
     temp1 = ind1[cxpoint1:cxpoint2+1] + ind2
@@ -192,7 +228,6 @@ def cx_partialy_matched(ind1, ind2):
         if gene not in ind2:
             ind2.append(gene)
     return ind1, ind2
-print(cx_partialy_matched([1,4,3,6,5,2],[4,3,5,2,1,6]))
 
 def mut_inverse_indexes(individual):
     '''
@@ -304,7 +339,6 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, ind_size
     print(f'Total cost: {1 / best_ind.fitness.values[0]}')
     return( ind2route(best_ind, instance, distance_matrix, vehicle_capacity, max_vehicle, init_cost))
 
-
 def decode_to_GPS(liste_res, instances):
     """
     Export results
@@ -312,6 +346,7 @@ def decode_to_GPS(liste_res, instances):
     Input: 
     - list_res (list) : Results of the algorithm for each warehouse
     - instances(list of dataframes) : keeps track of all the instances of each warehouse
+    Output : None
 
     """
     warehouse_num = 0
@@ -322,6 +357,47 @@ def decode_to_GPS(liste_res, instances):
                 route[i] = (instance['latitude'][route[i]], instance['longitude'][route[i]])
         name = 'res_entrepot_' + str(warehouse_num) + '.csv'
         columns_res = ['camion' + str(k+1) for k in range(len(routes_warehouse))]
-    
-        res = pd.DataFrame(routes_warehouse, index = columns_res).transpose()
+        res = pd.DataFrame(routes_warehouse, columns = columns_res)
+        # res = pd.DataFrame(routes_warehouse, index = columns_res).transpose()
         res.to_csv(os.path.join(PATH,'output_data',name))
+
+
+def results_vrptw(garage, truck, number_clients):
+    '''
+    Produce the results of the algorithm using a graph and all the funcntions implemented before
+
+    Input : 
+    - garage(class Garage from graphe.py)
+    - truck (class Camion from graphe.py)
+    - number_clients (int) : total number of clients to deliver during the day
+
+    Output : None, the results are in the folder 'output_data'
+    '''
+    df, warehouses, parcels = create_graph_components(k)
+    G = Graph(garage, warehouses, parcels, truck)
+    G.make_graph()
+    file_properties = G.generate_csv()
+    vehicle_capacity= file_properties.pop()
+    file_properties = no_client_to_deliver(file_properties)
+    file_properties = one_client_to_deliver(file_properties)
+    trucks = file_properties[1::3]
+    number_clients_per_warehouse = file_properties[2::3]
+    instances = [] #listes pour regrouper les résultats par entrepot
+    liste_res =[]
+    for (i, file) in enumerate(file_properties[::3]):
+        instance = pd.read_csv(os.path.join(PATH, 'input_data', file))
+            if instance.shape[0]>2 :
+                instances += [instance]
+        print(instance.head())
+        max_vehicle = trucks[i]
+        instance_bis = instance.drop(['Unnamed: 0', 'Identifiant', 'latitude', 'longitude'], axis = 'columns')
+        n = instance_bis.shape[1]
+        number_of_points = n - 1
+        number_of_clients = number_clients_per_warehouse[i]
+        instance_bis.columns = ['demand'] + [i for i in range(number_of_points)]
+        distance_matrix = instance_bis[[i for i in range(0,number_of_points)]] #prend la matrice des colonnes
+        res = run_vrptw(instance_bis, distance_matrix, vehicle_capacity, max_vehicle, number_of_clients, 100, 0.4, 0.2, 10)
+        liste_res.append(res)
+
+    decode_to_GPS(liste_res, instances)
+

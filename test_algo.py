@@ -1,28 +1,19 @@
-from graphe import *
-from optim_gen import run_vrptw, truck_division, decode_to_GPS
-
-g = Garage (150, 50, 40, 60)
-c = Camion(50, 0, 10000)
-e1 = Entrepot (100, 100, 10, 15, 5000)
-e2 = Entrepot (200, 100, 20, 10, 4000)
-e3 = Entrepot (100, 300, 15, 15, 4000)
-p1 = Colis (20, e1, [104, 120])
-p2 = Colis (30, e1, [104, 135])
-p3 = Colis (15, e2, [100, 135])
-p4 = Colis (23, e2, [103, 123])
-p5 = Colis (12, e1, [112, 122])
-p6 = Colis (13, e1, [107, 108])
-p7 = Colis (25, e3, [133, 123])
-entrepots = [e1, e2, e3]
-points_relais = []
-paquets = [p1, p2, p3, p4, p5, p6, p7]
-G = Graph(g, entrepots, points_relais, paquets, c)
-G.make_graph()
-G.garage.children[0].children
-# trace_graph(G)
-file_properties = G.generate_csv()
+from optim_gen import run_vrptw, decode_to_GPS, no_client_to_deliver, one_client_to_deliver
+a = ['entrepot_' + str(i+1) + '.csv' for i in range(20)]
+b = 20*[50]
+c = [2,2,0,0,0,0,2,4,4,0,0,0,4,0,0,0,0,0,0,2,50]
+file_properties = []
+for i in range(20):
+    file_properties.append(a[i])
+    file_properties.append(b[i])
+    file_properties.append(c[i])
+file_properties.append(c[-1])
+vehicle_capacity = file_properties.pop()
+file_properties = no_client_to_deliver(file_properties)
+file_properties = one_client_to_deliver(file_properties)
 print(file_properties)
-vehicle_capacity= file_properties.pop()
+'''
+
 max_vehicle_per_warehouse = file_properties[1::3]
 
 truck_div = truck_division(file_properties)
@@ -31,7 +22,7 @@ instances = [] #listes pour regrouper les résultats par entrepot
 liste_res =[]
 
 for (i, file) in enumerate(file_properties[::3]):
-    instance = pd.read_csv(os.path.join(PATH, 'input_data', file))
+    instance = pd.read_csv(os.path.join(PATH, 'input_data_test_main', file))
     if instance.shape[0]>2 :
         instances += [instance]
     print(instance.head())
@@ -52,3 +43,4 @@ for (i, file) in enumerate(file_properties[::3]):
 
 decode_to_GPS(liste_res, instances)
 
+'''
