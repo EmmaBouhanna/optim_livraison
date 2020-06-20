@@ -1,7 +1,7 @@
 from __init__ import * 
 #from warehouses_and_clients import *
 #from routes import *
-
+import pandas as pd
 """
 SECOND STEP: Building a graph containing all the information about warehouses,
 parcels and clients
@@ -393,10 +393,11 @@ def create_graph_components(k: int):
         # parcel's size is random
         size = 0.01*np.random.randint(1, 100) # parcel sizes range from 10 cm^3 to 1 m^3
         random_draw = np.random.randint(0, w)
-        where_from = warehouses[w]
+        where_from = warehouses[random_draw] # MODIF ICI random_draw au lieu de w
         parcels.append(Colis(size, where_from, destination))
         
     return df, warehouses, parcels
+
 
 
 def dist (n1: Node, n2: Node, df = None):
@@ -431,7 +432,7 @@ def dist (n1: Node, n2: Node, df = None):
                 if n1.lat == el[0] and n1.long == el[1]:
                     i = coords.index((n1.lat, n1.long))
                 if n2.lat == el[0] and n2.long == el[1]:
-                    j = coords.index((n1.lat, n1.long))
+                    j = coords.index((n2.lat, n2.long))
             dist = dist_matrix[i][j]
     
     return(dist)
