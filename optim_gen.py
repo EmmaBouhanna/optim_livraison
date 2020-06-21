@@ -72,7 +72,7 @@ def one_client_to_deliver(file):
     file_2 = []
     for i in range(1, len(file)//3 +1):
         if file[3*i-1] == 1:
-            instance = pd.read_csv(os.path.join(PATH,'input_data_test_main',file[3*(i-1)]))
+            instance = pd.read_csv(os.path.join(PATH,'input_data',file[3*(i-1)]))
             columns_res = ['Camion 1']
             res = [(instance['latitude'][i], instance['longitude'][i]) for i in [0,1,0]]
             res = pd.DataFrame(res, columns = columns_res)
@@ -390,7 +390,7 @@ def simulation_vrptw(garage, truck, number_clients):
     instances = [] #listes pour regrouper les résultats par entrepot
     liste_res =[]
     for (i, file) in enumerate(file_properties[::3]):
-        instance = pd.read_csv(os.path.join(PATH, 'input_data_test_main', file))
+        instance = pd.read_csv(os.path.join(PATH, 'input_data', file))
         if instance.shape[0]>2 :
             instances += [instance]
         print(instance.head())
