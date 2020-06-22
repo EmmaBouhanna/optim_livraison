@@ -136,7 +136,6 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
         # Save current sub-route before return if not empty
         subRoute.append(0)
         route.append(subRoute)
-    route = route[1:]
     if max_vehicle < len(route):
         raise ValueError
     return (route)
@@ -179,18 +178,14 @@ def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehic
 
     Output : Fitness (1/Cost)
     """
-    totalCost = 0
    
     route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle)
-    
     totalCost = 0
     for subRoute in route:
-        print('coucou')
         subRouteDistance = 0
         elapsedTime = 0
         lastCustomerID = 0
         for customerID in subRoute:
-            print('coucou2')
             # Calculate section distance
             distance = distance_matrix[lastCustomerID][customerID]
             # Update sub-route distance
@@ -298,6 +293,7 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, ind_size
     toolbox.register('mutate', mut_inverse_indexes)
     
     print('start of evolution')
+    print(pop)
     fitnesses = list(map(toolbox.evaluate, pop))
     for ind, fit in zip(pop, fitnesses): #Keep track of each indiviual's cost as attributes of creator Individual
         ind.fitness.values = (fit,)
@@ -401,7 +397,7 @@ def simulation_vrptw(garage, truck, number_clients):
         number_of_clients = number_clients_per_warehouse[i]
         instance_bis.columns = ['demand'] + [i for i in range(number_of_points)]
         distance_matrix = instance_bis[[i for i in range(0,number_of_points)]] #prend la matrice des colonnes
-        res = run_vrptw(instance_bis, distance_matrix, vehicle_capacity, max_vehicle, number_of_clients, 100, 0.4, 0.2, 10)
+        res = run_vrptw(instance_bis, distance_matrix, vehicle_capacity, max_vehicle, number_of_clients, 10, 0.4, 0.2, 10)
         liste_res.append(res)
 
     decode_to_GPS(liste_res, instances)

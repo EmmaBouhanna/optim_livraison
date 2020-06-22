@@ -1,3 +1,2 @@
-,Identifiant,Demande,latitude,longitude,entrepot,client 1
-0,6784f8e3-85e3-4c46-af9c-d908a0ee489a,0.0,48.942985,2.310899,0.0,0.5414556931258999
-1,418fb628-61fe-493a-a869-dbf3c85d5e5b,0.53,48.6507932,1.8550501,0.5414556931258999,0.0
+,Identifiant,Demande,latitude,longitude,entrepot
+0,af95bf6a-5bb0-4e22-8e95-770d82230104,0,48.942985,2.310899,0.0
