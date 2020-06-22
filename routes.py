@@ -1,13 +1,12 @@
 
-#import osmnx as ox
+import osmnx as ox
 import networkx as nx
 import numpy as np
 import pandas as pd
 import random
 import time
 
-from warehouses_clients import G_idf
-import warehouses_clients
+from warehouses_clients import *
 
 
 def nearest_nodes(gdf, G = G_idf):

@@ -1,5 +1,5 @@
-from __init__ import *
-from graphe import * 
+from __init__copy import *
+from graphe_sans_osmnx import * 
 service_time = (1/6) # 10 min lost per delivery
 time_work = 8.0 # number of work hours
 cost_dist = 1/3600 # coût par unité de temps
@@ -74,7 +74,8 @@ def one_client_to_deliver(file):
         if file[3*i-1] == 1:
             instance = pd.read_csv(os.path.join(PATH,'input_data',file[3*(i-1)]))
             columns_res = ['Camion 1']
-            res = [(instance['latitude'][i], instance['longitude'][i]) for i in [0,1,0]]
+            res = [instance['Identifiant'][i] for i in [0,1,0]]
+            print(res)
             res = pd.DataFrame(res, columns = columns_res)
             res.to_csv(os.path.join(PATH,'output_data',file[3*(i-1)]))
         else :
@@ -135,7 +136,6 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
         # Save current sub-route before return if not empty
         subRoute.append(0)
         route.append(subRoute)
-    route = route[1:]
     if max_vehicle < len(route):
         raise ValueError
     return (route)
@@ -178,10 +178,8 @@ def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehic
 
     Output : Fitness (1/Cost)
     """
-    totalCost = 0
    
-    route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost = 0.0)
-    
+    route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle)
     totalCost = 0
     for subRoute in route:
         subRouteDistance = 0
@@ -245,8 +243,6 @@ def mut_inverse_indexes(individual):
     individual = individual[:start + 1] + individual[stop:start:-1] + individual[stop+1:]
     return (individual, )
 
-print(mut_inverse_indexes([1,2,3,4,5,6,7,8,9]))
-
 
 def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, ind_size, pop_size, \
     cx_pb, mut_pb, n_gen, init_cost = 0.0, unit_cost = cost_dist):
@@ -297,6 +293,7 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, ind_size
     toolbox.register('mutate', mut_inverse_indexes)
     
     print('start of evolution')
+    print(pop)
     fitnesses = list(map(toolbox.evaluate, pop))
     for ind, fit in zip(pop, fitnesses): #Keep track of each indiviual's cost as attributes of creator Individual
         ind.fitness.values = (fit,)
@@ -359,11 +356,11 @@ def decode_to_GPS(liste_res, instances):
         warehouse_num += 1
         for route in routes_warehouse:
             for i in range(len(route)):
-                route[i] = (instance['latitude'][route[i]], instance['longitude'][route[i]])
+                route[i] = instance['Identifiant'][route[i]]
         name = 'res_entrepot_' + str(warehouse_num) + '.csv'
         columns_res = ['camion' + str(k+1) for k in range(len(routes_warehouse))]
-        res = pd.DataFrame(routes_warehouse, columns = columns_res)
-        # res = pd.DataFrame(routes_warehouse, index = columns_res).transpose()
+        print(routes_warehouse)
+        res = pd.DataFrame(routes_warehouse, index = columns_res).transpose()
         res.to_csv(os.path.join(PATH,'output_data',name))
 
 
@@ -401,8 +398,7 @@ def simulation_vrptw(garage, truck, number_clients):
         number_of_clients = number_clients_per_warehouse[i]
         instance_bis.columns = ['demand'] + [i for i in range(number_of_points)]
         distance_matrix = instance_bis[[i for i in range(0,number_of_points)]] #prend la matrice des colonnes
-        res = run_vrptw(instance_bis, distance_matrix, vehicle_capacity, max_vehicle, number_of_clients, 100, 0.4, 0.2, 10)
+        res = run_vrptw(instance_bis, distance_matrix, vehicle_capacity, max_vehicle, number_of_clients, 10, 0.4, 0.2, 10)
         liste_res.append(res)
 
     decode_to_GPS(liste_res, instances)
-

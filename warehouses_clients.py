@@ -1,9 +1,9 @@
-#import osmnx as ox
+import osmnx as ox
 import networkx as nx
 import numpy as np
 import pandas as pd
 import random
-#import geopandas
+import geopandas
 
 # Graph of Ile-de-France
 
@@ -33,6 +33,7 @@ def random_clients(k, df = df_warehouses, G = G_idf) :
     - k : le nombre de clients qu'on veut générer aléatoirement
     - df : une dataframe de points géographiques (par exemple le garage et les entrepôts)
     Cette dataframe doit contenir des colonnes "y"(latitudes) et "x"(longitudes)
+    - G : le graphe 
     
 
     La fonction retourne :

@@ -21,3 +21,5 @@ gdf_edges.to_csv("gdf_edges_idf.csv")
 # Creating a smaller version of gdf_edges (in order to use it on GitHub)
 gdf_edges_simplified = gdf_edges.drop(labels=["highway","area","junction","bridge","access","tunnel","width","est_width", "ref", "maxspeed", "lanes", "service", "name"], axis=1)
 gdf_edges_simplified.to_csv("gdf_edges_idf_simplified.csv")
+
+ox.folium.plot_graph_folium(G_idf_0)
