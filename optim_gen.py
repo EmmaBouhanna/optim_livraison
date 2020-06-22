@@ -136,7 +136,6 @@ def ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehic
         # Save current sub-route before return if not empty
         subRoute.append(0)
         route.append(subRoute)
-    route = route[1:]
     if max_vehicle < len(route):
         raise ValueError
     return (route)
@@ -181,15 +180,12 @@ def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehic
     """
    
     route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle)
-    
     totalCost = 0
     for subRoute in route:
-        print('coucou')
         subRouteDistance = 0
         elapsedTime = 0
         lastCustomerID = 0
         for customerID in subRoute:
-            print('coucou2')
             # Calculate section distance
             distance = distance_matrix[lastCustomerID][customerID]
             # Update sub-route distance
