@@ -1,6 +1,6 @@
 from __init__copy import * 
-from warehouses_clients import *
-from routes import *
+#from warehouses_clients import *
+#from routes import *
 
 """
 SECOND STEP: Building a graph containing all the information about warehouses,
@@ -421,7 +421,7 @@ def dist (n1: Node, n2: Node, df = None):
         dist = np.sqrt((n1.lat -n2.lat)**2 + (n1.long -n2.long)**2)
         
     else:
-        coords, dist_matrix = coord_example = list(zip(list(df_complete['y']), list(df_complete['x']))), np.genfromtxt("travel_times_array_example.csv", delimiter=',')
+        coords, dist_matrix = list(zip(list(df_complete['y']), list(df_complete['x']))), np.genfromtxt("travel_times_array_example.csv", delimiter=',')
         
         if isinstance(n1, Garage):
             dist = 0 

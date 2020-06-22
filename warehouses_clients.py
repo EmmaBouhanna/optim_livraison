@@ -3,7 +3,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import random
-import geopandas
+#import geopandas
 
 # Graph of Ile-de-France
 
