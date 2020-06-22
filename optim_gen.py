@@ -397,7 +397,7 @@ def simulation_vrptw(garage, truck, number_clients):
         number_of_clients = number_clients_per_warehouse[i]
         instance_bis.columns = ['demand'] + [i for i in range(number_of_points)]
         distance_matrix = instance_bis[[i for i in range(0,number_of_points)]] #prend la matrice des colonnes
-        res = run_vrptw(instance_bis, distance_matrix, vehicle_capacity, max_vehicle, number_of_clients, 100, 0.4, 0.2, 100)
+        res = run_vrptw(instance_bis, distance_matrix, vehicle_capacity, max_vehicle, number_of_clients, 100, 0.4, 0.2, 200)
         liste_res.append(res)
 
     decode_to_GPS(liste_res, instances)
