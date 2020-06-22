@@ -75,7 +75,7 @@ def one_client_to_deliver(file):
             instance = pd.read_csv(os.path.join(PATH,'input_data',file[3*(i-1)]))
             columns_res = ['Camion 1']
             res = [(instance['latitude'][i], instance['longitude'][i]) for i in [0,1,0]]
-            res = pd.DataFrame(res, columns = columns_res)
+            res = pd.DataFrame(res, index = columns_res).transpose()
             res.to_csv(os.path.join(PATH,'output_data',file[3*(i-1)]))
         else :
             file_2 += file[3*(i-1):3*i]
@@ -342,7 +342,7 @@ def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, ind_size
     best_ind = tools.selBest(pop, 1)[0]  #returns a list containing the k best individuals among the population, here the best one
     print(f'Best individual: {best_ind}')
     print(f'Total cost: {1 / best_ind.fitness.values[0]}')
-    return( ind2route(best_ind, instance, distance_matrix, vehicle_capacity, max_vehicle)))
+    return( ind2route(best_ind, instance, distance_matrix, vehicle_capacity, max_vehicle))
 
 def decode_to_GPS(liste_res, instances):
     """
@@ -362,8 +362,7 @@ def decode_to_GPS(liste_res, instances):
                 route[i] = (instance['latitude'][route[i]], instance['longitude'][route[i]])
         name = 'res_entrepot_' + str(warehouse_num) + '.csv'
         columns_res = ['camion' + str(k+1) for k in range(len(routes_warehouse))]
-        res = pd.DataFrame(routes_warehouse, columns = columns_res)
-        # res = pd.DataFrame(routes_warehouse, index = columns_res).transpose()
+        res = pd.DataFrame(routes_warehouse, index = columns_res).transpose()
         res.to_csv(os.path.join(PATH,'output_data',name))
 
 
@@ -378,7 +377,7 @@ def simulation_vrptw(garage, truck, number_clients):
 
     Output : None, the results are in the folder 'output_data'
     '''
-    df, warehouses, parcels = create_graph_components(k)
+    df, warehouses, parcels = create_graph_components(number_clients)
     G = Graph(garage, warehouses, parcels, truck)
     G.make_graph()
     file_properties = G.generate_csv()
