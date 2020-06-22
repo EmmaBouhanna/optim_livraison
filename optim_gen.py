@@ -181,14 +181,16 @@ def evalVRPTW(individual, instance, distance_matrix, vehicle_capacity, max_vehic
     """
     totalCost = 0
    
-    route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle, initCost = 0.0)
+    route = ind2route(individual, instance, distance_matrix, vehicle_capacity, max_vehicle)
     
     totalCost = 0
     for subRoute in route:
+        print('coucou')
         subRouteDistance = 0
         elapsedTime = 0
         lastCustomerID = 0
         for customerID in subRoute:
+            print('coucou2')
             # Calculate section distance
             distance = distance_matrix[lastCustomerID][customerID]
             # Update sub-route distance
