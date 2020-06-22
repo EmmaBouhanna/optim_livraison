@@ -74,7 +74,8 @@ def one_client_to_deliver(file):
         if file[3*i-1] == 1:
             instance = pd.read_csv(os.path.join(PATH,'input_data',file[3*(i-1)]))
             columns_res = ['Camion 1']
-            res = [(instance['latitude'][i], instance['longitude'][i]) for i in [0,1,0]]
+            res = [instance['Identifiant'][i] for i in [0,1,0]]
+            print(res)
             res = pd.DataFrame(res, index = columns_res).transpose()
             res.to_csv(os.path.join(PATH,'output_data',file[3*(i-1)]))
         else :
@@ -245,8 +246,6 @@ def mut_inverse_indexes(individual):
     individual = individual[:start + 1] + individual[stop:start:-1] + individual[stop+1:]
     return (individual, )
 
-print(mut_inverse_indexes([1,2,3,4,5,6,7,8,9]))
-
 
 def run_vrptw(instance, distance_matrix, vehicle_capacity, max_vehicle, ind_size, pop_size, \
     cx_pb, mut_pb, n_gen, init_cost = 0.0, unit_cost = cost_dist):
@@ -359,7 +358,7 @@ def decode_to_GPS(liste_res, instances):
         warehouse_num += 1
         for route in routes_warehouse:
             for i in range(len(route)):
-                route[i] = (instance['latitude'][route[i]], instance['longitude'][route[i]])
+                route[i] = instance['Identifiant'][route[i]]
         name = 'res_entrepot_' + str(warehouse_num) + '.csv'
         columns_res = ['camion' + str(k+1) for k in range(len(routes_warehouse))]
         res = pd.DataFrame(routes_warehouse, index = columns_res).transpose()

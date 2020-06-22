@@ -1,4 +1,4 @@
-from __init__copy import * 
+from __init__ import * 
 #from warehouses_clients import *
 #from routes import *
 
@@ -369,7 +369,7 @@ def create_graph_components(k: int):
     :return: dataframe, warehouses and parcels
     :rtype: dataframe pandas, [Entrepot], [Colis]
     """
-    df = pd.read_csv('df_warehouses_and_clients_example.csv')
+    df = pd.read_csv(os.path.join(PATH, 'df_warehouses_and_clients_example.csv'))
     localisations = df.values.tolist()
     index_start_warehouses = 0
     index_end_warehouses = 19

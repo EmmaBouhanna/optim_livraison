@@ -23,7 +23,7 @@ coord_, tableau_, itineraires_ = itineraries(df_complete, critere_optim="travel_
 #Pour sauvegarder la dataframe
 
 df_complete.to_csv ('df_warehouses_and_clients_example.csv' , index = False)
-#pour inverser l'opération : df_complete = pd.read_csv('df_warehouses_and_clients_example.csv')
+#pour inverser l'opération : df_complete= pd.read_csv('df_warehouses_and_clients_example.csv')
 
 
 #Pour sauvegarder le tableau des temps de trajets
