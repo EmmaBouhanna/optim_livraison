@@ -359,7 +359,8 @@ def decode_to_GPS(liste_res, instances):
                 route[i] = instance['Identifiant'][route[i]]
         name = 'res_entrepot_' + str(warehouse_num) + '.csv'
         columns_res = ['camion' + str(k+1) for k in range(len(routes_warehouse))]
-        res = pd.DataFrame(routes_warehouse, columns = columns_res)
+        print(routes_warehouse)
+        res = pd.DataFrame(routes_warehouse, index = columns_res).transpose()
         res.to_csv(os.path.join(PATH,'output_data',name))
 
 
