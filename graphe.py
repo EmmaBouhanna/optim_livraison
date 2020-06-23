@@ -444,7 +444,7 @@ def dist (n1: Node, n2: Node, G: Graph):
     :return: distance to go from n1 to n2 (oriented edge)
     :rtype: float
     """
-    if df == None: # for an example without using real data
+    if G.coords == None: # for an example without using real data
         dist = np.sqrt((n1.lat -n2.lat)**2 + (n1.long -n2.long)**2)
         
     else:
