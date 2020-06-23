@@ -282,7 +282,7 @@ class Graph:
         
     def make_dist_matrix(self, df = None):
         if self.matrix == None:
-            coords, dist_matrix, itineraries_dict = itineraries(df, G = G_idf, critere_optim = "length")
+            coords, dist_matrix, itineraries_dict = itineraries(df, G = G_idf, critere_optim = "travel_time")
             self.matrix = dist_matrix
             self.coords = coords
     
@@ -302,7 +302,7 @@ def generate_csv(G : Graph, df = None, indexes = None):
     trucks and the number of clients
     :rtype: list
     """
-    numero = 1
+    numero = 0
     file_names = []
     for e in G.entrepots:
         csv_entrepot(e, numero, G, df, indexes)

@@ -75,7 +75,7 @@ def itineraries(df, G = G_idf, critere_optim = 'length'):
         for j in range(n):
             arrivee = Nearest_nodes[j]
             route = nx.shortest_path(G, depart, arrivee, weight=critere_optim)
-            distance = int(sum(ox.utils_graph.get_route_edge_attributes(G, route, 'travel_time')))
+            distance = int(sum(ox.utils_graph.get_route_edge_attributes(G, route, critere_optim)))
             Itineraires[(i, j)] = route, distance
             Tableau_distances[i, j] = distance
     print("Temps d execution total : %s secondes ---" % (time.time() - start_time))

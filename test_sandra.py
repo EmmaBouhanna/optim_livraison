@@ -6,9 +6,8 @@ import pandas as pd
 import random
 import folium
 
-from warehouses_clients import G_idf
-import warehouses_clients
-import routes
+from warehouses_clients import *
+from routes import *
 
 
 ## Test - 20 entrepôts, 30 clients
@@ -51,17 +50,28 @@ Note : il y a des guillemets autour des tuples lorsqu'on inverse l'opération"""
 """Elle se déduit de la dataframe !!
 coord_example = list(zip(list(df_complete['y']), list(df_complete['x'])))"""
 
-from graphe import *
-from warehouses_clients import *
+from graphe_sans_osmnx import *
 
 g = Garage (2.2728354, 48.8281142997349, 40, 60)
 c = Camion(50, 0, 10000)
 
-k = 10 # choose number of clients
-df, warehouses = create_graph_components(k)
+k = 4 # choose number of clients
+df, indexes, warehouses, parcels = create_graph_components(k)
 
 G = Graph(g, warehouses, parcels, c)
 G.make_graph()
-G.generate_csv(df)
+G.make_dist_matrix(df)
 
+G.matrix
+
+generate_csv(G, df, indexes)
+
+print(G.matrix)
+
+coords, dist_matrix, itineraries_dict = itineraries(df, G_idf, "length")
+carte_test = ox.folium.plot_route_folium(G_idf, itineraries_dict[(0, 1)][0], 
+                                         tiles='Stamen Toner')
+
+G_test = ox.graph_from_address("Paris", dist = 15000, simplify=True, network_type="drive")
+ox.folium.plot_graph_folium(G_test)
 
