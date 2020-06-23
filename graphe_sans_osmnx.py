@@ -308,7 +308,8 @@ class Graph:
         return file_names
     
 
-def csv_entrepot(e, numero: int, df = None):
+
+def csv_entrepot(e, numero: int, df = None, indexes = None):
     """
     This method creates, for the warehouse given as an argument, a csv file 
     contaning the following elements:
@@ -327,17 +328,34 @@ def csv_entrepot(e, numero: int, df = None):
     
     :return: csv file in the folder "input_data"
     """
+    index_start_warehouses = indexes[0][0]
+    index_end_warehouses = indexes[0][1]
+    index_start_clients = indexes[1][0]
+    index_end_clients = indexes[1][1]
     
     L = [] # L is a list of lists
     # First element of L corresponds to the warehouse's data
-    l = [e.id, 0, e.lat, e.long]
+    # find the warehouse in df
+    index = -1
+    for i in range(index_start_warehouses, index_end_warehouses +1):
+        if e.lat == df[i][0] and e.long == df[i][1]:
+            index = i
+           
+    l = [index, 0, e.lat, e.long]
     tree_nodes = [e]+e.children
     for n in tree_nodes:
         l.append(dist(e, n, df))
     L.append(l)
+    
+    
     # All other elements of L correspond to the clients' data
     for client in e.children:
-        l = [client.id, client.taille_colis, client.lat, client.long]
+        # find the client in df
+        index = -1
+        for i in range(index_start_clients, index_end_clients +1):
+            if client.lat == df[i][0] and client.long == df[i][1]:
+                index = i
+        l = [index, client.taille_colis, client.lat, client.long]
         for n in tree_nodes:
             l.append(dist(client, n, df)) # distance from the node client to the node n
         L.append(l)
