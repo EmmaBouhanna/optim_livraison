@@ -280,7 +280,7 @@ class Graph:
                         p.client.new_child(pp.client)
         
     
-    def generate_csv(self, df = None):
+    def generate_csv(self, df = None, indexes):
         """
         Class method used to generate csv files that are going to be used in 
         the third step (optimization of the delivery). One csv file is created
@@ -298,7 +298,7 @@ class Graph:
         numero = 1
         file_names = []
         for e in self.entrepots:
-            csv_entrepot(e, numero)
+            csv_entrepot(e, numero, df, indexes)
             name = "entrepot_"+str(numero)+".csv"
             file_names.append(name)
             file_names.append(e.max_camions)
