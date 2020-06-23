@@ -374,10 +374,10 @@ def simulation_vrptw(garage, truck, number_clients):
 
     Output : None, the results are in the folder 'output_data'
     '''
-    df, warehouses, parcels = create_graph_components(number_clients)
+    df, indexes, warehouses, parcels = create_graph_components(number_clients)
     G = Graph(garage, warehouses, parcels, truck)
     G.make_graph()
-    file_properties = G.generate_csv()
+    file_properties = generate_csv(G, df, indexes)
     vehicle_capacity= file_properties.pop()
     file_properties = no_client_to_deliver(file_properties)
     file_properties = one_client_to_deliver(file_properties)
