@@ -1,7 +1,7 @@
 from __init__ import * 
 #from warehouses_and_clients import *
 #from routes import *
-import pandas as pd
+
 """
 SECOND STEP: Building a graph containing all the information about warehouses,
 parcels and clients
@@ -280,7 +280,7 @@ class Graph:
                         p.client.new_child(pp.client)
         
     
-    def generate_csv(self, df = None, indexes):
+    def generate_csv(self, df = None):
         """
         Class method used to generate csv files that are going to be used in 
         the third step (optimization of the delivery). One csv file is created
@@ -298,7 +298,7 @@ class Graph:
         numero = 1
         file_names = []
         for e in self.entrepots:
-            csv_entrepot(e, numero, df, indexes)
+            csv_entrepot(e, numero)
             name = "entrepot_"+str(numero)+".csv"
             file_names.append(name)
             file_names.append(e.max_camions)
@@ -308,7 +308,7 @@ class Graph:
         return file_names
     
 
-def csv_entrepot(e, numero: int, df = None, indexes = None):
+def csv_entrepot(e, numero: int, df = None):
     """
     This method creates, for the warehouse given as an argument, a csv file 
     contaning the following elements:
@@ -327,34 +327,17 @@ def csv_entrepot(e, numero: int, df = None, indexes = None):
     
     :return: csv file in the folder "input_data"
     """
-    index_start_warehouses = indexes[0][0]
-    index_end_warehouses = indexes[0][1]
-    index_start_clients = indexes[1][0]
-    index_end_clients = indexes[1][1]
     
     L = [] # L is a list of lists
     # First element of L corresponds to the warehouse's data
-    # find the warehouse in df
-    index = -1
-    for i in range(index_start_warehouses, index_end_warehouses +1):
-        if e.lat == df[i][0] and e.long == df[i][1]:
-            index = i
-           
-    l = [index, 0, e.lat, e.long]
+    l = [e.id, 0, e.lat, e.long]
     tree_nodes = [e]+e.children
     for n in tree_nodes:
         l.append(dist(e, n, df))
     L.append(l)
-    
-    
     # All other elements of L correspond to the clients' data
     for client in e.children:
-        # find the client in df
-        index = -1
-        for i in range(index_start_clients, index_end_clients +1):
-            if client.lat == df[i][0] and client.long == df[i][1]:
-                index = i
-        l = [index, client.taille_colis, client.lat, client.long]
+        l = [client.id, client.taille_colis, client.lat, client.long]
         for n in tree_nodes:
             l.append(dist(client, n, df)) # distance from the node client to the node n
         L.append(l)
@@ -389,7 +372,7 @@ def create_graph_components(k: int):
     df, indexes = random_clients(k, df = df_warehouses)
     localisations = df.values.tolist()
     index_start_warehouses = indexes[0][0]
-    index_end_warehouses = indexes[0][1] 
+    index_end_warehouses = indexes[0][1]
     index_start_clients = indexes[1][0]
     index_end_clients = indexes[1][1]
     
@@ -403,18 +386,17 @@ def create_graph_components(k: int):
         warehouses.append(Entrepot(lat, long, max_vehicles, max_light, capacity))
     
     # creation of parcels
-    w = len(warehouses) 
+    w = len(warehouses)
     parcels = []
     for i in range(index_start_clients, index_end_clients + 1):
         destination = [localisations[i][0], localisations[i][1]]
         # parcel's size is random
         size = 0.01*np.random.randint(1, 100) # parcel sizes range from 10 cm^3 to 1 m^3
         random_draw = np.random.randint(0, w)
-        where_from = warehouses[random_draw] # MODIF ICI random_draw au lieu de w
+        where_from = warehouses[w]
         parcels.append(Colis(size, where_from, destination))
         
-    return df, indexes, warehouses, parcels
-
+    return df, warehouses, parcels
 
 
 def dist (n1: Node, n2: Node, df = None):
@@ -449,7 +431,7 @@ def dist (n1: Node, n2: Node, df = None):
                 if n1.lat == el[0] and n1.long == el[1]:
                     i = coords.index((n1.lat, n1.long))
                 if n2.lat == el[0] and n2.long == el[1]:
-                    j = coords.index((n2.lat, n2.long))
+                    j = coords.index((n1.lat, n1.long))
             dist = dist_matrix[i][j]
     
     return(dist)
