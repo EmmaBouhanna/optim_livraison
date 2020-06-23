@@ -282,7 +282,7 @@ class Graph:
         
     def make_dist_matrix(self, df = None):
         if self.matrix == None:
-            coords, dist_matrix, itineraries = itineraries(df, G = G_idf, critere_optim = "length")
+            coords, dist_matrix, itineraries_dict = itineraries(df, G = G_idf, critere_optim = "length")
             self.matrix = dist_matrix
             self.coords = coords
     
@@ -305,7 +305,7 @@ def generate_csv(G : Graph, df = None, indexes = None):
     numero = 1
     file_names = []
     for e in G.entrepots:
-        csv_entrepot(e, numero, df, indexes)
+        csv_entrepot(e, numero, G, df, indexes)
         name = "entrepot_"+str(numero)+".csv"
         file_names.append(name)
         file_names.append(e.max_camions)
@@ -315,7 +315,7 @@ def generate_csv(G : Graph, df = None, indexes = None):
     return file_names
     
 
-def csv_entrepot(e, numero: int, df = None, indexes = None):
+def csv_entrepot(e, numero: int, G : Graph, df = None, indexes = None):
     """
     This method creates, for the warehouse given as an argument, a csv file 
     contaning the following elements:
@@ -334,7 +334,7 @@ def csv_entrepot(e, numero: int, df = None, indexes = None):
     
     :return: csv file in the folder "input_data"
     """
-    df_list = df.values.to_list()
+    
     index_start_warehouses = indexes[0][0]
     index_end_warehouses = indexes[0][1]
     index_start_clients = indexes[1][0]
@@ -345,13 +345,13 @@ def csv_entrepot(e, numero: int, df = None, indexes = None):
     # find the warehouse in df
     index = -1
     for i in range(index_start_warehouses, index_end_warehouses +1):
-        if e.lat == df_list[i][0] and e.long == df_list[i][1]:
+        if e.lat == df["y"][i] and e.long == df["x"][i]:
             index = i
            
     l = [index, 0, e.lat, e.long]
     tree_nodes = [e]+e.children
     for n in tree_nodes:
-        l.append(dist(e, n, df))
+        l.append(dist(e, n, G))
     L.append(l)
     
     
@@ -360,11 +360,11 @@ def csv_entrepot(e, numero: int, df = None, indexes = None):
         # find the client in df
         index = -1
         for i in range(index_start_clients, index_end_clients +1):
-            if client.lat == df_list[i][0] and client.long == df_list[i][1]:
+            if client.lat == df["y"][i] and client.long == df["x"][i]:
                 index = i
         l = [index, client.taille_colis, client.lat, client.long]
         for n in tree_nodes:
-            l.append(dist(client, n, df)) # distance from the node client to the node n
+            l.append(dist(client, n, G)) # distance from the node client to the node n
         L.append(l)
     names = ["Identifiant", "Demande", "latitude", "longitude", "entrepot"]
     tree_nodes.pop(0)

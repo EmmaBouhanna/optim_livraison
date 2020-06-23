@@ -19,7 +19,7 @@ G_idf = ox.utils_graph.graph_from_gdfs(gdf_nodes, gdf_edges)
 
 # Warehouses
 
-df_warehouses = pd.read_csv("warehouses.csv", sep=";")
+df_warehouses = pd.read_csv("warehouses.csv", sep=";", nrows=2)
 
 # Random clients
 
