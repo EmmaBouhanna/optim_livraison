@@ -1,6 +1,6 @@
-from __init__ import * 
-#from warehouses_and_clients import *
-#from routes import *
+from __init__copy import * 
+from warehouses_clients import *
+from routes import *
 import pandas as pd
 """
 SECOND STEP: Building a graph containing all the information about warehouses,
@@ -287,7 +287,7 @@ class Graph:
             self.coords = coords
     
     
-def generate_csv(G : Graph, df = None, indexes):
+def generate_csv(G : Graph, df = None, indexes = None):
     """
     Class method used to generate csv files that are going to be used in 
     the third step (optimization of the delivery). One csv file is created
