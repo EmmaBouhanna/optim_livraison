@@ -77,7 +77,7 @@ def one_client_to_deliver(file):
             res = [instance['Identifiant'][i] for i in [0,1,0]]
             print(res)
             res = pd.DataFrame(res, columns = columns_res)
-            res.to_csv(os.path.join(PATH,'output_data',file[3*(i-1)]))
+            res.to_csv(os.path.join(PATH,'output_data', 'res_entrepot_' + str(instance['Identifiant'][0]) +'.csv' ))
         else :
             file_2 += file[3*(i-1):3*i]
     return(file_2)
@@ -356,7 +356,7 @@ def decode_to_GPS(liste_res, instances):
         for route in routes_warehouse:
             for i in range(len(route)):
                 route[i] = instance['Identifiant'][route[i]]
-        name = 'res_entrepot_' + str(warehouse_num) + '.csv'
+        name = 'res_entrepot_' + str(instance['Identifiant'][0]) +'.csv'
         columns_res = ['camion' + str(k+1) for k in range(len(routes_warehouse))]
         print(routes_warehouse)
         res = pd.DataFrame(routes_warehouse, index = columns_res).transpose()
