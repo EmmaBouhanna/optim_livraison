@@ -282,7 +282,7 @@ class Graph:
         
     def make_dist_matrix(self, df = None):
         if self.matrix == None:
-            coords, dist_matrix, itineraries_dict = itineraries(df, G = G_idf, critere_optim = "travel_time")
+            coords, dist_matrix, itineraries_dict = itineraries(df, G = G_idf, critere_optim = "corrected_travel_time")
             self.matrix = dist_matrix
             self.coords = coords
     

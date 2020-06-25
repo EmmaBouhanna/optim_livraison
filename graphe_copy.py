@@ -1,6 +1,6 @@
 from __init__copy import * 
-from warehouses_clients import *
-from routes import *
+from warehouses_clients_improved import *
+from routes_improved import *
 
 """
 SECOND STEP: Building a graph containing all the information about warehouses,

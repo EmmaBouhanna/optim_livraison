@@ -1,5 +1,5 @@
-from __init__ import *
-from graphe_sans_osmnx import * 
+from __init__copy import *
+from graphe import * 
 service_time = (1/6) # 10 min lost per delivery
 time_work = 8.0 # number of work hours
 cost_dist = 1/3600 # coût par unité de temps
@@ -377,6 +377,7 @@ def simulation_vrptw(garage, truck, number_clients):
     df, indexes, warehouses, parcels = create_graph_components(number_clients)
     G = Graph(garage, warehouses, parcels, truck)
     G.make_graph()
+    G.make_dist_matrix(df)
     file_properties = generate_csv(G, df, indexes)
     vehicle_capacity= file_properties.pop()
     file_properties = no_client_to_deliver(file_properties)
@@ -401,4 +402,3 @@ def simulation_vrptw(garage, truck, number_clients):
         liste_res.append(res)
 
     decode_to_GPS(liste_res, instances)
-

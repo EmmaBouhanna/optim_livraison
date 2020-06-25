@@ -75,3 +75,7 @@ carte_test = ox.folium.plot_route_folium(G_idf, itineraries_dict[(0, 1)][0],
 G_test = ox.graph_from_address("Paris", dist = 15000, simplify=True, network_type="drive")
 ox.folium.plot_graph_folium(G_test)
 
+
+### Test fonction itineraries
+
+

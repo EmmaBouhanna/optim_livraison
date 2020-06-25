@@ -1,45 +1,44 @@
-import osmnx as ox
 import networkx as nx
-import numpy as np
-import pandas as pd
 import random
-import geopandas
+import pandas as pd
 
-# Graph of Ile-de-France
 
-df_nodes = pd.read_csv("gdf_nodes_idf.csv", index_col="osmid", dtype = {'osmid': int, 'y': float, 'x': float})
-df_edges = pd.read_csv("gdf_edges_idf_simplified.csv")
-df_nodes.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
-df_edges.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
+G_idf = nx.read_gpickle("./saved_files/graph_idf.gpickle")
 
-gdf_nodes = geopandas.GeoDataFrame(df_nodes)
-gdf_edges = geopandas.GeoDataFrame(df_edges)
-
-G_idf = ox.utils_graph.graph_from_gdfs(gdf_nodes, gdf_edges)
+df_nodes_idf = pd.read_csv("gdf_nodes_idf.csv", index_col="osmid", dtype = {'osmid': int, 'y': float, 'x': float})
+df_edges_idf = pd.read_csv("gdf_edges_idf_simplified.csv")
+df_nodes_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
+df_edges_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
 
 # Warehouses
-
-df_warehouses = pd.read_csv("warehouses.csv", sep=";", nrows=2)
+df_warehouses = pd.read_csv("warehouses.csv", sep=";")
 
 # Random clients
 
-def random_clients(k, df = df_warehouses, G = G_idf) :
+def random_clients(k, df = df_warehouses, G = G_idf, df_nodes = df_nodes_idf) :
 
     """
-    Fonction qui ajoute à une dataframe de points géographiques un certain nombre de points
-    géographiques représentant des clients
+    Add a number of random geographical points (representing random clients in our project) in a given area 
+    to an existing dataframe (containing warehouses in our project)
+    (Not inplace)
 
-    La fonction prend en entrée :
-    - k : le nombre de clients qu'on veut générer aléatoirement
-    - df : une dataframe de points géographiques (par exemple le garage et les entrepôts)
-    Cette dataframe doit contenir des colonnes "y"(latitudes) et "x"(longitudes)
-    - G : le graphe 
+    Input:
+    - k (int) : desired number of random clients
+    - df (pandas.DataFrame) : dataframe containing following columns :
+        - "y" : type float (latitudes)
+        - "x" : type float (longitudes) 
+        - "name" : type string
+        - "type" : type string
+        - "adress" : type string 
+    - G (networkx.MultiDiGraph): graph of the given area
+    - df_nodes (pandas.DataFrame) : dataframe containing the nodes of G
     
 
-    La fonction retourne :
-    - df_complete : la dataframe complétée par les clients aléatoires 
-    - indices : un doublet de listes d'indices :
-    (indices des entrepôts, indices des clients)
+    Output :
+    - df_complete (pandas.DataFrame) : output dataframe 
+    - indexes (tuple) : tuple containing :
+        - index_warehouses (list) : list containing start and end indexes of warehouses in df_complete
+        - index_clients (list) : list containing start and end indexes of clients in df_complete
     """
 
     n_warehouses = df.shape[0]
@@ -55,10 +54,11 @@ def random_clients(k, df = df_warehouses, G = G_idf) :
             random_index = random.randint(0, number_of_nodes)
         Random_index.append(random_index)
         random_node = list(G)[random_index]
-        lat = gdf_nodes["y"][random_node]
-        lon = gdf_nodes["x"][random_node]
+        lat = df_nodes["y"][random_node]
+        lon = df_nodes["x"][random_node]
         df_complete.loc[n_warehouses + i] = [lat, lon, f"Client {i}", None, None]
         
     index_clients = [n_warehouses, df_complete.shape[0] - 1]
+    indexes = (index_warehouses, index_clients)
 
-    return df_complete, (index_warehouses, index_clients)
+    return df_complete, indexes 
