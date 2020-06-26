@@ -6,7 +6,6 @@ import csv
 from uuid import uuid4
 import os
 import random
-import csv
 from deap import tools, creator, base
 
 # import pygraphviz as pgv

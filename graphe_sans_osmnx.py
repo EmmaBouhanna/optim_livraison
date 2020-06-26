@@ -1,13 +1,20 @@
 from __init__ import * 
 #from warehouses_clients import *
 #from routes import *
-import pandas as pd
+
+
 """
 SECOND STEP: Building a graph containing all the information about warehouses,
 parcels and clients
 
 This file contains all the classes and methods used to build the graph from 
 the geographical locations of clients and warehouses obtained in the first step. 
+
+NOTES : Lignes à modifier pour changer de fichiers :
+fonction make_dist_matrix (ligne 288)
+fonction create_graph_components (début - 2 premières lignes)
+
+
 """
 
 class Node:
@@ -282,10 +289,28 @@ class Graph:
         
     def make_dist_matrix(self, df = None):
         if self.matrix == None:
+
             coords = list(zip(list(df['y']), list(df['x'])))
-            dist_matrix = np.genfromtxt("travel_times_array_example.csv", delimiter=',')
+            dist_matrix = np.genfromtxt(os.path.join(PATH, "output_data_bis/corrected_travel_times_array.csv", delimiter=','))
+            df_itineraries = pd.read_csv(os.path.join(PATH, "output_data_bis/itineraries_dict.csv", delimiter=','), header=None)
+            itineraries_dict = {}
+            for i in range(df_itineraries.shape[1]) :
+                # partie suivante c'est du bricolage parce qu'on a sauvegardé le dictionnaire
+                # et que toutes les valeurs sont devenues des chaînes de caractères
+                cleaned_ = df_itineraries[i][1].split('[')[1]
+                cleaned_ = cleaned_.split(']')[0]
+                # à ce stade on a une chaîne de caractère qui contient tous les identifiants
+                # des noeuds de la route
+                route = cleaned_.split(', ')
+                for j in range(len(route)) :
+                    route[j] = int(route[j])
+                # route est la liste des identifiants des noeuds de la route
+                itineraries_dict[df_itineraries[i][0]] = route
+
             self.matrix = dist_matrix
             self.coords = coords
+            self.itineraries = itineraries_dict
+
     
     
 def generate_csv(G : Graph, df = None, indexes = None):
@@ -396,8 +421,8 @@ def create_graph_components(k: int):
     :rtype: dataframe pandas, [Entrepot], [Colis]
     """
     
-    df = pd.read_csv(os.path.join(PATH, 'df_warehouses_and_clients_example.csv'))
-    indexes = ([0, 19], [20, 49])
+    df = pd.read_csv(os.path.join(PATH, 'output_data_bis/df_complete.csv'))
+    indexes = ([0, 19], [20, df.shape[0] - 1])
 
     localisations = df.values.tolist()
     index_start_warehouses = indexes[0][0]
