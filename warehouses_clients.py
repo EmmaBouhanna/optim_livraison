@@ -3,7 +3,7 @@ import random
 import pandas as pd
 
 
-G_idf = nx.read_gpickle("graph_idf.gpickle")
+G_idf = nx.read_gpickle("./saved_files/graph_idf.gpickle")
 
 dict_ = {}
 travel_times = nx.get_edge_attributes(G_idf, 'travel_time')
