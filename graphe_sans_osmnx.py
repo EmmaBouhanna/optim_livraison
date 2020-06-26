@@ -29,12 +29,12 @@ class Node:
     longitude. 
     """
     
-    def __init__(self, lat : float, long : float):
+    def __init__(self, lat : float, lon : float):
         """
         :param lat: latitude
         :type lat: float
-        :param long: longitude
-        :type long: float
+        :param lon: longitude
+        :type lon: float
         
         :attribute id: unique identifier generated thanks to the UIID python
         library
@@ -44,7 +44,7 @@ class Node:
         """
         self.id = uuid4()
         self.lat = lat
-        self.long = long
+        self.lon = lon
         self.children = [] 
     
     
@@ -83,7 +83,7 @@ class Client(Node):
     visualization.
     """
     
-    def __init__(self, lat : float, long : float, size = None):
+    def __init__(self, lat : float, lon : float, size = None):
         """
         Almost the same __init__ of the upper class: there is an additional attribute.
         
@@ -92,25 +92,25 @@ class Client(Node):
         """
         self.id = uuid4()
         self.lat = lat
-        self.long = long
+        self.lon = lon
         self.taille_colis = size
         self.children = []
     
-def make_client(lat : float, long : float, size: int):
+def make_client(lat : float, lon : float, size: int):
     """
     Method to build a client.
     
     :param lat: latitude
     :type lat: float
-    :param long: longitude
-    :type long: float
+    :param lon: longitude
+    :type lon: float
     :param size: size of the client's parcel (in m^3)
     :type size: int
     
     :return: a new Client 
     :rtype: Client (Node) 
     """
-    new_client = Client(lat, long, size)
+    new_client = Client(lat, lon, size)
     return new_client
     
     
@@ -148,7 +148,7 @@ class Garage(Node):
     Subclass of Node representing a garage.
     """
     
-    def __init__(self, lat: float, long: float, nb_camions: int, nb_legers: int):
+    def __init__(self, lat: float, lon: float, nb_camions: int, nb_legers: int):
         """
         :attribute nb_camions: maximum number of trucks in the garage
         :type nb_camions: int
@@ -157,7 +157,7 @@ class Garage(Node):
         """
         self.id = uuid4()
         self.lat = lat
-        self.long = long
+        self.lon = lon
         self.nb_camions = nb_camions
         self.nb_legers = nb_legers
         self.children = []
@@ -167,7 +167,7 @@ class Entrepot(Node):
     Subclass of Node representing a warehouse.
     """
     
-    def __init__(self, lat : float, long : float, max_camions : int, max_legers: int, capacite : int):
+    def __init__(self, lat : float, lon : float, max_camions : int, max_legers: int, capacite : int):
         """
         :attribute max_camions: maximum number of trucks
         :type max_camions: int
@@ -178,7 +178,7 @@ class Entrepot(Node):
         """
         self.id = uuid4()
         self.lat = lat
-        self.long = long
+        self.lon = lon
         self.children = []
         self.max_camions = max_camions
         self.max_legers = max_legers
@@ -371,10 +371,10 @@ def csv_entrepot(e, numero: int, G : Graph, df = None, indexes = None):
     # find the warehouse in df
     index = -1
     for i in range(index_start_warehouses, index_end_warehouses +1):
-        if e.lat == df["y"][i] and e.long == df["x"][i]:
+        if e.lat == df["y"][i] and e.lon == df["x"][i]:
             index = i
            
-    l = [index, 0, e.lat, e.long]
+    l = [index, 0, e.lat, e.lon]
     tree_nodes = [e]+e.children
     for n in tree_nodes:
         l.append(dist(e, n, G))
@@ -386,9 +386,9 @@ def csv_entrepot(e, numero: int, G : Graph, df = None, indexes = None):
         # find the client in df
         index = -1
         for i in range(index_start_clients, index_end_clients +1):
-            if client.lat == df["y"][i] and client.long == df["x"][i]:
+            if client.lat == df["y"][i] and client.lon == df["x"][i]:
                 index = i
-        l = [index, client.taille_colis, client.lat, client.long]
+        l = [index, client.taille_colis, client.lat, client.lon]
         for n in tree_nodes:
             l.append(dist(client, n, G)) # distance from the node client to the node n
         L.append(l)
@@ -433,11 +433,11 @@ def create_graph_components(k: int):
     # creation of warehouses
     warehouses = []
     for i in range(index_start_warehouses, index_end_warehouses + 1):
-        lat, long = localisations[i][0], localisations[i][1]
+        lat, lon = localisations[i][0], localisations[i][1]
         capacity = 400000 #m^3
         max_vehicles = 50
         max_light = 30
-        warehouses.append(Entrepot(lat, long, max_vehicles, max_light, capacity))
+        warehouses.append(Entrepot(lat, lon, max_vehicles, max_light, capacity))
     
     # creation of parcels
     w = len(warehouses) 
@@ -474,7 +474,7 @@ def dist (n1: Node, n2: Node, G: Graph):
     :rtype: float
     """
     if G.coords == None: # for an example without using real data
-        dist = np.sqrt((n1.lat -n2.lat)**2 + (n1.long -n2.long)**2)
+        dist = np.sqrt((n1.lat -n2.lat)**2 + (n1.lon -n2.lon)**2)
         
     else:
         coords = G.coords
@@ -486,10 +486,10 @@ def dist (n1: Node, n2: Node, G: Graph):
             dist = 0
         else:
             for el in coords:
-                if n1.lat == el[0] and n1.long == el[1]:
-                    i = coords.index((n1.lat, n1.long))
-                if n2.lat == el[0] and n2.long == el[1]:
-                    j = coords.index((n2.lat, n2.long))
+                if n1.lat == el[0] and n1.lon == el[1]:
+                    i = coords.index((n1.lat, n1.lon))
+                if n2.lat == el[0] and n2.lon == el[1]:
+                    j = coords.index((n2.lat, n2.lon))
             dist = dist_matrix[i][j]
     
     return(dist)
