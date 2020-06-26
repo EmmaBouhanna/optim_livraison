@@ -1,5 +1,5 @@
-from __init__copy import *
-from graphe import * 
+from __init__ import *
+from graphe_sans_osmnx import * 
 service_time = (1/6) # 10 min lost per delivery
 time_work = 8.0 # number of work hours
 cost_dist = 1/3600 # coût par unité de temps
@@ -383,10 +383,10 @@ def simulation_vrptw(garage, truck, number_clients):
     df.to_csv(os.path.join(PATH,'output_data_bis/df_complete.csv'))
 
     if G.matrix is not None :
-        np.savetxt("./output_data_bis/corrected_travel_times_array.csv", G.matrix, delimiter=",")
+        np.savetxt(os.path.join(PATH, 'output_data_bis/corrected_travel_times_array.csv'), G.matrix, delimiter=",")
 
     if G.itineraries is not None :
-        with open('./output_data_bis/itineraries_dict.csv', 'w') as f:  
+        with open(os.path.join(PATH,'output_data_bis/itineraries_dict.csv'), 'w') as f:  
             w = csv.DictWriter(f, G.itineraries.keys())
             w.writeheader()
             w.writerow(G.itineraries)

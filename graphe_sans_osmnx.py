@@ -291,8 +291,8 @@ class Graph:
         if self.matrix == None:
 
             coords = list(zip(list(df['y']), list(df['x'])))
-            dist_matrix = np.genfromtxt(os.path.join(PATH, "output_data_bis/corrected_travel_times_array.csv", delimiter=','))
-            df_itineraries = pd.read_csv(os.path.join(PATH, "output_data_bis/itineraries_dict.csv", delimiter=','), header=None)
+            dist_matrix = np.genfromtxt(os.path.join(PATH, "output_data_bis/corrected_travel_times_array.csv"), delimiter=',')
+            df_itineraries = pd.read_csv(os.path.join(PATH, "output_data_bis/itineraries_dict.csv"), delimiter=',', header=None)
             itineraries_dict = {}
             for i in range(df_itineraries.shape[1]) :
                 # partie suivante c'est du bricolage parce qu'on a sauvegardé le dictionnaire
