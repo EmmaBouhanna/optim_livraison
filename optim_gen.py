@@ -355,7 +355,7 @@ def decode_to_GPS(liste_res, instances):
         warehouse_num += 1
         for route in routes_warehouse:
             for i in range(len(route)):
-                route[i] = instance['Identifiant'][route[i]]
+                route[i] = int(instance['Identifiant'][route[i]])
         name = 'res_entrepot_' + str(instance['Identifiant'][0]) +'.csv'
         columns_res = ['camion' + str(k+1) for k in range(len(routes_warehouse))]
         print(routes_warehouse)
