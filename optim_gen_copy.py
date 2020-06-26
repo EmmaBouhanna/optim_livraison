@@ -1,5 +1,5 @@
 from __init__copy import *
-from graphe_copy import * 
+from graphe import * 
 service_time = (1/6) # 10 min lost per delivery
 time_work = 8.0 # number of work hours
 cost_dist = 1/3600 # coût par unité de temps

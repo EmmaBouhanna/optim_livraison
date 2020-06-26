@@ -1,7 +1,6 @@
 import osmnx as ox
 import numpy as np
 import time
-
 # networkx and pandas already imported in warehouses_clients
 
 from warehouses_clients import *
@@ -49,11 +48,11 @@ def itineraries(df, G = G_idf, critere_optim = 'corrected_travel_time'):
     G is the graph of Ile-de-France
     - critere_optim (string, optional) : use this edge attribute as the edge weight that must be 
     minimized. If not specified, this attribute is 'corrected_travel_time'. Other supported options :
-    'length', 'travel_time', 
+    'length', 'travel_time', ...
 
     Output :
     - coords_list (list) : list containing tuples (latitude, longitude) for each node
-    - weight_array (numpy.) : un tableau numpy dans lequel la case [i, j] contient le "poids"
+    - weight_array (numpy.ndarray) : un tableau numpy dans lequel la case [i, j] contient le "poids"
     (distance ou temps de trajet par exemple)
     du meilleur itinéraire allant de i à j (tableau pas forcément symétrique car 
     certaines routes peuvent êtres à sens unique)
