@@ -1,71 +1,71 @@
-,Unnamed: 0,Unnamed: 0.1,Unnamed: 0.1.1,y,x,name,type,adress
-0,0,0,0,48.754897,2.366262,Agence Chronopost Rungis,Agence Chronopost,"Centre technique routier D, 3 Rue des Transports, 94150 Rungis"
-1,1,1,1,48.714794,2.302966,Agence Chronopost Massy,Agence Chronopost,"au Berger, 2 rue Saint-Exupéry ZA La Butte, 91380 Chilly-Mazarin"
-2,2,2,2,48.967846,2.490294,Agence Chronopost Aulnay,Agence Chronopost,"43 Boulevard André Citroën, 93600 Aulnay-sous-Bois"
-3,3,3,3,48.911495,2.433059,Agence Chronopost Bobigny,Agence Chronopost,"165 Avenue Henri Barbusse, 93000 Bobigny"
-4,4,4,4,48.842213,2.301509,Agence Chronopost Lecourbe,Agence Chronopost,"Chrono City, 123 Rue Lecourbe, 75015 Paris"
-5,5,5,5,48.781472,2.427903,Agence Chronopost de Brie-Comte-Robert,Agence Chronopost,"2 Chemin de Villeneuve Saint-Georges, 94140 Alfortville"
-6,6,6,6,48.755959,1.930983,Agence Chronopost de Versailles,Agence Chronopost,"6 Rue André Marie Ampère, 78310 Coignières"
-7,7,7,7,48.95345800000001,2.193233,Agence Chronopost de Cormeilles en Parisis,Agence Chronopost,"6 Allée du 7ème Art, 95240 Cormeilles-en-Parisis"
-8,8,8,8,48.898284,2.36538,Agence Chronopost Paris boulevard Ney,Agence Chronopost,"11-13 Boulevard Ney, 75018 Paris"
-9,9,9,9,48.942985,2.310899,Agence Chronopost Villeneuve-la-Garenne,Agence Chronopost,"155 Boulevard Charles de Gaulle, 92390 Villeneuve-la-Garenne"
-10,10,10,10,49.038502,2.1534720000000003,Agence Chronopost Cergy,Agence Chronopost,"30 Avenue du Fief, 95310 Saint-Ouen-l'Aumône"
-11,11,11,11,48.990935,2.542882,Agence Chronopost Roissy,Agence Chronopost,"Cargo 7, 9 Rue du Haut de Laval, 95700 Roissy-en-France"
-12,12,12,12,48.821819,2.722362,Agence Chronopost Marne La Vallée,Agence Chronopost,"15 Avenue Joseph Froelicher, 77164 Ferrières-en-Brie"
-13,13,13,13,48.949716,2.286061,La Poste Plateforme Colis Gennevilliers, ,"27 Route Principale du Port, 92230 Gennevilliers"
-14,14,14,14,48.908057,2.209987,Plate-forme Colis La Poste Nanterre,Agence Coliposte,"Chemin d'Accès À l'Usine Électrique, 92000 Nanterre"
-15,15,15,15,49.025419,2.118881,Agence Coliposte Herblay,Agence Coliposte,"24 Rue du Gros Murger, 95220 Herblay"
-16,16,16,16,48.800336,2.305234,Agence Coliposte Bagneux,Agence Coliposte,"Allée du Parc de Garlande, 92220 Bagneux"
-17,17,17,17,48.779825,2.203774,Agence Coliposte Vélizy,Agence Coliposte,"2 Rue Grange Dame Rose, 78140 Vélizy-Villacoublay"
-18,18,18,18,48.777976,2.432886,Agence Colissimo Créteil,Agence Colissimo,"2 Chemin des Marais, 94000 Créteil"
-19,19,19,19,48.902305,2.367363,Agence ColiPoste La Plaine Saint-Denis,Agence Coliposte,"Ave. des Dockers, 93300 Aubervilliers"
-20,20,20,20,48.9532382,1.5416446000000001,Client 0,,
-21,21,21,21,48.673899299999995,2.3769104,Client 1,,
-22,22,22,22,48.6110677,2.4302085,Client 2,,
-23,23,23,23,48.8849572,2.2552535,Client 3,,
-24,24,24,24,49.058459,1.9304841,Client 4,,
-25,25,25,25,48.934695500000004,2.5166213,Client 5,,
-26,26,26,26,48.6757316,2.9742195,Client 6,,
-27,27,27,27,49.04682070000001,1.9980606,Client 7,,
-28,28,28,28,48.982749299999995,2.2778411,Client 8,,
-29,29,29,29,48.8129342,2.1358764,Client 9,,
-30,30,30,30,49.088126700000004,1.8691883999999999,Client 10,,
-31,31,31,31,48.8966427,2.9865364,Client 11,,
-32,32,32,32,48.657684,2.7172417999999996,Client 12,,
-33,33,33,33,48.4835142,2.4464443,Client 13,,
-34,34,34,34,48.64224960000001,2.4377508,Client 14,,
-35,35,35,35,48.82141179999999,3.1371884,Client 15,,
-36,36,36,36,48.78489370000001,2.2363453,Client 16,,
-37,37,37,37,48.887274700000006,2.6940311,Client 17,,
-38,38,38,38,48.7877513,2.3427621,Client 18,,
-39,39,39,39,48.5865428,2.5965841,Client 19,,
-40,40,40,40,48.8849684,2.3556998,Client 20,,
-41,41,41,41,48.7601158,1.9459164,Client 21,,
-42,42,42,42,48.5642731,3.0490682999999996,Client 22,,
-43,43,43,43,48.6899618,2.1275677,Client 23,,
-44,44,44,44,48.8962388,2.1217667000000002,Client 24,,
-45,45,45,45,48.857077600000004,1.9017015,Client 25,,
-46,46,46,46,48.8593918,2.1397678,Client 26,,
-47,47,47,47,49.0759106,2.207204,Client 27,,
-48,48,48,48,48.8404554,2.3994714,Client 28,,
-49,49,49,49,48.554466399999995,2.1226921,Client 29,,
-50,50,50,50,48.299825899999995,2.4231138,Client 30,,
-51,51,51,51,48.946798799999996,2.1665067000000002,Client 31,,
-52,52,52,52,48.8350338,2.2479332999999997,Client 32,,
-53,53,53,53,48.93921160000001,2.6760471000000003,Client 33,,
-54,54,54,54,49.0732927,2.6727394,Client 34,,
-55,55,55,55,48.7208839,2.2477693,Client 35,,
-56,56,56,56,48.891563299999994,1.6317338,Client 36,,
-57,57,57,57,48.8885631,2.4714522,Client 37,,
-58,58,58,58,48.7175259,2.4487716,Client 38,,
-59,59,59,59,48.701675200000004,2.8801813,Client 39,,
-60,60,60,60,48.855698499999995,2.4968068,Client 40,,
-61,61,61,61,48.516152399999996,2.2740799,Client 41,,
-62,62,62,62,48.7669973,1.937085,Client 42,,
-63,63,63,63,48.739799100000006,2.3975676,Client 43,,
-64,64,64,64,49.062581099999996,2.0575447000000002,Client 44,,
-65,65,65,65,48.6300485,2.0583307,Client 45,,
-66,66,66,66,48.5434024,3.2931218999999996,Client 46,,
-67,67,67,67,49.0582085,2.4941996,Client 47,,
-68,68,68,68,48.9213078,1.8722096000000001,Client 48,,
-69,69,69,69,48.5912441,2.2225099999999998,Client 49,,
+,Unnamed: 0,Unnamed: 0.1,Unnamed: 0.1.1,Unnamed: 0.1.1.1,Unnamed: 0.1.1.1.1,Unnamed: 0.1.1.1.1.1,Unnamed: 0.1.1.1.1.1.1,Unnamed: 0.1.1.1.1.1.1.1,Unnamed: 0.1.1.1.1.1.1.1.1,y,x,name,type,adress
+0,0,0,0,0,0,0,0,0,0,48.754897,2.366262,Agence Chronopost Rungis,Agence Chronopost,"Centre technique routier D, 3 Rue des Transports, 94150 Rungis"
+1,1,1,1,1,1,1,1,1,1,48.714794,2.302966,Agence Chronopost Massy,Agence Chronopost,"au Berger, 2 rue Saint-Exupéry ZA La Butte, 91380 Chilly-Mazarin"
+2,2,2,2,2,2,2,2,2,2,48.967846,2.490294,Agence Chronopost Aulnay,Agence Chronopost,"43 Boulevard André Citroën, 93600 Aulnay-sous-Bois"
+3,3,3,3,3,3,3,3,3,3,48.911495,2.433059,Agence Chronopost Bobigny,Agence Chronopost,"165 Avenue Henri Barbusse, 93000 Bobigny"
+4,4,4,4,4,4,4,4,4,4,48.842213,2.301509,Agence Chronopost Lecourbe,Agence Chronopost,"Chrono City, 123 Rue Lecourbe, 75015 Paris"
+5,5,5,5,5,5,5,5,5,5,48.781472,2.427903,Agence Chronopost de Brie-Comte-Robert,Agence Chronopost,"2 Chemin de Villeneuve Saint-Georges, 94140 Alfortville"
+6,6,6,6,6,6,6,6,6,6,48.755959,1.930983,Agence Chronopost de Versailles,Agence Chronopost,"6 Rue André Marie Ampère, 78310 Coignières"
+7,7,7,7,7,7,7,7,7,7,48.95345800000001,2.193233,Agence Chronopost de Cormeilles en Parisis,Agence Chronopost,"6 Allée du 7ème Art, 95240 Cormeilles-en-Parisis"
+8,8,8,8,8,8,8,8,8,8,48.898284,2.36538,Agence Chronopost Paris boulevard Ney,Agence Chronopost,"11-13 Boulevard Ney, 75018 Paris"
+9,9,9,9,9,9,9,9,9,9,48.942985,2.310899,Agence Chronopost Villeneuve-la-Garenne,Agence Chronopost,"155 Boulevard Charles de Gaulle, 92390 Villeneuve-la-Garenne"
+10,10,10,10,10,10,10,10,10,10,49.038502,2.1534720000000003,Agence Chronopost Cergy,Agence Chronopost,"30 Avenue du Fief, 95310 Saint-Ouen-l'Aumône"
+11,11,11,11,11,11,11,11,11,11,48.990935,2.542882,Agence Chronopost Roissy,Agence Chronopost,"Cargo 7, 9 Rue du Haut de Laval, 95700 Roissy-en-France"
+12,12,12,12,12,12,12,12,12,12,48.821819,2.722362,Agence Chronopost Marne La Vallée,Agence Chronopost,"15 Avenue Joseph Froelicher, 77164 Ferrières-en-Brie"
+13,13,13,13,13,13,13,13,13,13,48.949716,2.286061,La Poste Plateforme Colis Gennevilliers, ,"27 Route Principale du Port, 92230 Gennevilliers"
+14,14,14,14,14,14,14,14,14,14,48.908057,2.209987,Plate-forme Colis La Poste Nanterre,Agence Coliposte,"Chemin d'Accès À l'Usine Électrique, 92000 Nanterre"
+15,15,15,15,15,15,15,15,15,15,49.025419,2.118881,Agence Coliposte Herblay,Agence Coliposte,"24 Rue du Gros Murger, 95220 Herblay"
+16,16,16,16,16,16,16,16,16,16,48.800336,2.305234,Agence Coliposte Bagneux,Agence Coliposte,"Allée du Parc de Garlande, 92220 Bagneux"
+17,17,17,17,17,17,17,17,17,17,48.779825,2.203774,Agence Coliposte Vélizy,Agence Coliposte,"2 Rue Grange Dame Rose, 78140 Vélizy-Villacoublay"
+18,18,18,18,18,18,18,18,18,18,48.777976,2.432886,Agence Colissimo Créteil,Agence Colissimo,"2 Chemin des Marais, 94000 Créteil"
+19,19,19,19,19,19,19,19,19,19,48.902305,2.367363,Agence ColiPoste La Plaine Saint-Denis,Agence Coliposte,"Ave. des Dockers, 93300 Aubervilliers"
+20,20,20,20,20,20,20,20,20,20,48.9532382,1.5416446000000001,Client 0,,
+21,21,21,21,21,21,21,21,21,21,48.673899299999995,2.3769104,Client 1,,
+22,22,22,22,22,22,22,22,22,22,48.6110677,2.4302085,Client 2,,
+23,23,23,23,23,23,23,23,23,23,48.8849572,2.2552535,Client 3,,
+24,24,24,24,24,24,24,24,24,24,49.058459,1.9304841,Client 4,,
+25,25,25,25,25,25,25,25,25,25,48.934695500000004,2.5166213,Client 5,,
+26,26,26,26,26,26,26,26,26,26,48.6757316,2.9742195,Client 6,,
+27,27,27,27,27,27,27,27,27,27,49.04682070000001,1.9980606,Client 7,,
+28,28,28,28,28,28,28,28,28,28,48.982749299999995,2.2778411,Client 8,,
+29,29,29,29,29,29,29,29,29,29,48.8129342,2.1358764,Client 9,,
+30,30,30,30,30,30,30,30,30,30,49.088126700000004,1.8691883999999999,Client 10,,
+31,31,31,31,31,31,31,31,31,31,48.8966427,2.9865364,Client 11,,
+32,32,32,32,32,32,32,32,32,32,48.657684,2.7172417999999996,Client 12,,
+33,33,33,33,33,33,33,33,33,33,48.4835142,2.4464443,Client 13,,
+34,34,34,34,34,34,34,34,34,34,48.64224960000001,2.4377508,Client 14,,
+35,35,35,35,35,35,35,35,35,35,48.82141179999999,3.1371884,Client 15,,
+36,36,36,36,36,36,36,36,36,36,48.78489370000001,2.2363453,Client 16,,
+37,37,37,37,37,37,37,37,37,37,48.887274700000006,2.6940311,Client 17,,
+38,38,38,38,38,38,38,38,38,38,48.7877513,2.3427621,Client 18,,
+39,39,39,39,39,39,39,39,39,39,48.5865428,2.5965841,Client 19,,
+40,40,40,40,40,40,40,40,40,40,48.8849684,2.3556998,Client 20,,
+41,41,41,41,41,41,41,41,41,41,48.7601158,1.9459164,Client 21,,
+42,42,42,42,42,42,42,42,42,42,48.5642731,3.0490682999999996,Client 22,,
+43,43,43,43,43,43,43,43,43,43,48.6899618,2.1275677,Client 23,,
+44,44,44,44,44,44,44,44,44,44,48.8962388,2.1217667000000002,Client 24,,
+45,45,45,45,45,45,45,45,45,45,48.857077600000004,1.9017015,Client 25,,
+46,46,46,46,46,46,46,46,46,46,48.8593918,2.1397678,Client 26,,
+47,47,47,47,47,47,47,47,47,47,49.0759106,2.207204,Client 27,,
+48,48,48,48,48,48,48,48,48,48,48.8404554,2.3994714,Client 28,,
+49,49,49,49,49,49,49,49,49,49,48.554466399999995,2.1226921,Client 29,,
+50,50,50,50,50,50,50,50,50,50,48.299825899999995,2.4231138,Client 30,,
+51,51,51,51,51,51,51,51,51,51,48.946798799999996,2.1665067000000002,Client 31,,
+52,52,52,52,52,52,52,52,52,52,48.8350338,2.2479332999999997,Client 32,,
+53,53,53,53,53,53,53,53,53,53,48.93921160000001,2.6760471000000003,Client 33,,
+54,54,54,54,54,54,54,54,54,54,49.0732927,2.6727394,Client 34,,
+55,55,55,55,55,55,55,55,55,55,48.7208839,2.2477693,Client 35,,
+56,56,56,56,56,56,56,56,56,56,48.891563299999994,1.6317338,Client 36,,
+57,57,57,57,57,57,57,57,57,57,48.8885631,2.4714522,Client 37,,
+58,58,58,58,58,58,58,58,58,58,48.7175259,2.4487716,Client 38,,
+59,59,59,59,59,59,59,59,59,59,48.701675200000004,2.8801813,Client 39,,
+60,60,60,60,60,60,60,60,60,60,48.855698499999995,2.4968068,Client 40,,
+61,61,61,61,61,61,61,61,61,61,48.516152399999996,2.2740799,Client 41,,
+62,62,62,62,62,62,62,62,62,62,48.7669973,1.937085,Client 42,,
+63,63,63,63,63,63,63,63,63,63,48.739799100000006,2.3975676,Client 43,,
+64,64,64,64,64,64,64,64,64,64,49.062581099999996,2.0575447000000002,Client 44,,
+65,65,65,65,65,65,65,65,65,65,48.6300485,2.0583307,Client 45,,
+66,66,66,66,66,66,66,66,66,66,48.5434024,3.2931218999999996,Client 46,,
+67,67,67,67,67,67,67,67,67,67,49.0582085,2.4941996,Client 47,,
+68,68,68,68,68,68,68,68,68,68,48.9213078,1.8722096000000001,Client 48,,
+69,69,69,69,69,69,69,69,69,69,48.5912441,2.2225099999999998,Client 49,,

@@ -485,7 +485,9 @@ def dist (n1: Node, n2: Node, G: Graph):
         elif isinstance(n2, Garage):
             dist = 0
         else:
+            print(n1.lat, n1.lon)
             for el in coords:
+                
                 if n1.lat == el[0] and n1.lon == el[1]:
                     i = coords.index((n1.lat, n1.lon))
                 if n2.lat == el[0] and n2.lon == el[1]:
