@@ -114,14 +114,14 @@ def itineraries(df, G = G_idf, critere_optim = 'corrected_travel_time'):
                 if (i < n_warehouses and j < n_warehouses):
                     # itinerary between two warehouses
                     weight_array[i, j] = warehouses_array[i, j]
-                    print("value already calculated")
+                    #print("value already calculated")
                 else : 
                     arrivee = nearest_nodes_list[j]
                     route = nx.shortest_path(G, depart, arrivee, weight=critere_optim)
                     total_weight = int(sum(ox.utils_graph.get_route_edge_attributes(G, route, critere_optim)))
                     itineraries_dict[f'({i}, {j})'] = route, total_weight
                     weight_array[i, j] = total_weight
-                    print("new value")
+                    #print("new value")
         print("Temps d execution total : %s secondes ---" % (time.time() - start_time))
 
     else :

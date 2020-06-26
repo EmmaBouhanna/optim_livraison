@@ -3,19 +3,27 @@ import random
 import pandas as pd
 
 
-G_idf = nx.read_gpickle("./saved_files/graph_idf.gpickle")
+G_idf = nx.read_gpickle("graph_idf.gpickle")
+
+dict_ = {}
+travel_times = nx.get_edge_attributes(G_idf, 'travel_time')
+for key, value in travel_times.items():
+    dict_[key] = value * 1.2
+
+nx.set_edge_attributes(G_idf, dict_, 'corrected_travel_time')
 
 df_nodes_idf = pd.read_csv("gdf_nodes_idf.csv", index_col="osmid", dtype = {'osmid': int, 'y': float, 'x': float})
 df_edges_idf = pd.read_csv("gdf_edges_idf_simplified.csv")
 df_nodes_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
 df_edges_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
 
+
 # Warehouses
 df_warehouses = pd.read_csv("warehouses.csv", sep=";")
 
 # Random clients
 
-def random_clients(k, df = df_warehouses, G = G_idf, df_nodes = df_nodes_idf) :
+def random_clients(k, df = df_warehouses, G = G_idf) :
 
     """
     Add a number of random geographical points (representing random clients in our project) in a given area 
@@ -46,19 +54,33 @@ def random_clients(k, df = df_warehouses, G = G_idf, df_nodes = df_nodes_idf) :
 
     df_complete = df.copy()
     number_of_nodes = len(list(G_idf))
-    Random_index = []
+    Random_nodes = []
+
+    Lats = nx.get_node_attributes(G_idf, "y")
+    Lons = nx.get_node_attributes(G_idf, "x")
 
     for i in range(k):
-        random_index = random.randint(0, number_of_nodes)
-        while random_index in Random_index :
-            random_index = random.randint(0, number_of_nodes)
-        Random_index.append(random_index)
-        random_node = list(G)[random_index]
-        lat = df_nodes["y"][random_node]
-        lon = df_nodes["x"][random_node]
+        random_node = random.choice(list(G))
+        while random_node in Random_nodes :
+            random_node = random.choice(list(G))
+        Random_nodes.append(random_node)
+        lat = Lats[random_node]
+        lon = Lons[random_node]
         df_complete.loc[n_warehouses + i] = [lat, lon, f"Client {i}", None, None]
         
     index_clients = [n_warehouses, df_complete.shape[0] - 1]
     indexes = (index_warehouses, index_clients)
 
     return df_complete, indexes 
+
+
+    import osmnx as ox
+
+    start_time = time.time()
+    route1 = nx.shortest_path(G_idf, 288357015, 4280286175, 'corrected_travel_time')
+    print("temps :", time.time() - start_time, "secondes")
+    
+    start_time = time.time()
+    route2 = nx.dijkstra_path(G_idf, 288357015, 4280286175, 'corrected_travel_time')
+    print("temps :", time.time() - start_time, "secondes")
+

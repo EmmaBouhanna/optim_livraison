@@ -375,10 +375,20 @@ def simulation_vrptw(garage, truck, number_clients):
     Output : None, the results are in the folder 'output_data'
     '''
     df, indexes, warehouses, parcels = create_graph_components(number_clients)
-    df.to_csv(os.path.join(PATH,'output_data/other_data/df_complete.csv'))
+
+    df.to_csv(os.path.join(PATH,'output_data_bis/df_complete.csv'))
+
     G = Graph(garage, warehouses, parcels, truck)
     G.make_graph()
     G.make_dist_matrix(df)
+
+    np.savetxt("./output_data_bis/corrected_travel_times_array.csv", G.matrix, delimiter=",")
+
+    with open('./output_data_bis/itineraries_dict.csv', 'w') as f:  
+        w = csv.DictWriter(f, G.itineraries.keys())
+        w.writeheader()
+        w.writerow(G.itineraries)
+
     file_properties = generate_csv(G, df, indexes)
     vehicle_capacity= file_properties.pop()
     file_properties = no_client_to_deliver(file_properties)

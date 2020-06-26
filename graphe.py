@@ -256,6 +256,7 @@ class Graph:
         self.k = len(colis) # nombre de clients
         self.matrix = None # distance matrix that will be computed
         self.coords = None
+        self.itineraries = None
 
         
     def make_graph(self):
@@ -285,6 +286,7 @@ class Graph:
             coords, dist_matrix, itineraries_dict = itineraries(df, G = G_idf, critere_optim = "corrected_travel_time")
             self.matrix = dist_matrix
             self.coords = coords
+            self.itineraries = itineraries_dict
     
     
 def generate_csv(G : Graph, df = None, indexes = None):
