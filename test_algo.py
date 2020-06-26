@@ -1,5 +1,6 @@
 from __init__ import *
 from optim_gen import run_vrptw, decode_to_GPS, no_client_to_deliver, one_client_to_deliver
+
 a = ['entrepot_' + str(i+1) + '.csv' for i in range(20)]
 b = 20*[50]
 c = [2,2,0,0,0,0,2,4,4,0,0,0,4,0,0,0,0,0,0,2,50]
