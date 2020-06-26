@@ -423,8 +423,7 @@ def create_graph_components(k: int):
     
     df = pd.read_csv(os.path.join(PATH, 'output_data_bis/df_complete.csv'))
     indexes = ([0, 19], [20, df.shape[0] - 1])
-
-    localisations = df.values.tolist()
+    print(f'indexes= {indexes}')
     index_start_warehouses = indexes[0][0]
     index_end_warehouses = indexes[0][1] 
     index_start_clients = indexes[1][0]
@@ -433,7 +432,7 @@ def create_graph_components(k: int):
     # creation of warehouses
     warehouses = []
     for i in range(index_start_warehouses, index_end_warehouses + 1):
-        lat, lon = localisations[i][0], localisations[i][1]
+        lat, lon = df['y'][i], df['x'][i]
         capacity = 400000 #m^3
         max_vehicles = 50
         max_light = 30
@@ -443,7 +442,7 @@ def create_graph_components(k: int):
     w = len(warehouses) 
     parcels = []
     for i in range(index_start_clients, index_end_clients + 1):
-        destination = [localisations[i][0], localisations[i][1]]
+        destination = [df['y'][i], df['x'][i]]
         # parcel's size is random
         size = 0.01*np.random.randint(1, 100) # parcel sizes range from 10 cm^3 to 1 m^3
         random_draw = np.random.randint(0, w)
@@ -485,7 +484,6 @@ def dist (n1: Node, n2: Node, G: Graph):
         elif isinstance(n2, Garage):
             dist = 0
         else:
-            print(n1.lat, n1.lon)
             for el in coords:
                 
                 if n1.lat == el[0] and n1.lon == el[1]:
