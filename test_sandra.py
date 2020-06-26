@@ -50,7 +50,7 @@ Note : il y a des guillemets autour des tuples lorsqu'on inverse l'opération"""
 """Elle se déduit de la dataframe !!
 coord_example = list(zip(list(df_complete['y']), list(df_complete['x'])))"""
 
-from graphe_sans_osmnx import *
+from graphe_copy import *
 
 g = Garage (2.2728354, 48.8281142997349, 40, 60)
 c = Camion(50, 0, 10000)
@@ -134,3 +134,23 @@ for (i, file) in enumerate(file_properties[::3]):
     liste_res.append(res)
 
 decode_to_GPS(liste_res, instances)
+
+
+from graphe import *
+from optim_gen_copy import simulation_vrptw
+g = Garage (2.2728354, 48.8281142997349, 40, 60)
+c = Camion(1, 0, 10000)
+
+k = 5 # choose number of clients
+simulation_vrptw(g, c, k)
+
+import osmnx as ox
+
+start_time = time.time()
+route1 = nx.shortest_path(G_idf, 288357015, 4280286175, 'corrected_travel_time')
+print("temps :", time.time() - start_time, "secondes")
+    
+start_time = time.time()
+route2 = nx.dijkstra_path(G_idf, 288357015, 4280286175, 'corrected_travel_time')
+print("temps :", time.time() - start_time, "secondes")
+

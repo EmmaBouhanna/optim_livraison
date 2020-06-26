@@ -1,6 +1,7 @@
 from __init__copy import * 
-from warehouses_clients_improved import *
-from routes_improved import *
+from warehouses_clients import *
+from routes import *
+import pandas as pd
 
 """
 SECOND STEP: Building a graph containing all the information about warehouses,
@@ -254,7 +255,9 @@ class Graph:
         self.colis = colis # liste des colis à livrer le jour n
         self.camion = camion
         self.k = len(colis) # nombre de clients
-
+        self.matrix = None # distance matrix that will be computed
+        self.coords = None
+        self.itineraries = None
 
         
     def make_graph(self):
@@ -279,36 +282,43 @@ class Graph:
                     if pp.id != p.id:
                         p.client.new_child(pp.client)
         
+    def make_dist_matrix(self, df = None):
+        if self.matrix == None:
+            coords, dist_matrix, itineraries_dict = itineraries(df, G = G_idf, critere_optim = "corrected_travel_time")
+            self.matrix = dist_matrix
+            self.coords = coords
+            self.itineraries = itineraries_dict
     
-    def generate_csv(self, df = None):
-        """
-        Class method used to generate csv files that are going to be used in 
-        the third step (optimization of the delivery). One csv file is created
-        for each warehouse thanks to the method csv_entrepot.
-        The method also stores the number of trucks that leave the garage as 
-        well as the number of clients to be delivered.
-        
-        :param df: dataframe to get the true distance
-        :type df: pandas dataframe
-        
-        :return: a list containg the names of the csv files, the number of 
-        trucks and the number of clients
-        :rtype: list
-        """
-        numero = 1
-        file_names = []
-        for e in self.entrepots:
-            csv_entrepot(e, numero)
-            name = "entrepot_"+str(numero)+".csv"
-            file_names.append(name)
-            file_names.append(e.max_camions)
-            file_names.append(len(e.children))
-            numero += 1
-        file_names.append(self.camion.capacite)
-        return file_names
+    
+def generate_csv(G : Graph, df = None, indexes = None):
+    """
+    Class method used to generate csv files that are going to be used in 
+    the third step (optimization of the delivery). One csv file is created
+    for each warehouse thanks to the method csv_entrepot.
+    The method also stores the number of trucks that leave the garage as 
+    well as the number of clients to be delivered.
+    
+    :param df: dataframe to get the true distance
+    :type df: pandas dataframe
+    
+    :return: a list containg the names of the csv files, the number of 
+    trucks and the number of clients
+    :rtype: list
+    """
+    numero = 0
+    file_names = []
+    for e in G.entrepots:
+        csv_entrepot(e, numero, G, df, indexes)
+        name = "entrepot_"+str(numero)+".csv"
+        file_names.append(name)
+        file_names.append(e.max_camions)
+        file_names.append(len(e.children))
+        numero += 1
+    file_names.append(G.camion.capacite)
+    return file_names
     
 
-def csv_entrepot(e, numero: int, df = None):
+def csv_entrepot(e, numero: int, G : Graph, df = None, indexes = None):
     """
     This method creates, for the warehouse given as an argument, a csv file 
     contaning the following elements:
@@ -328,18 +338,36 @@ def csv_entrepot(e, numero: int, df = None):
     :return: csv file in the folder "input_data"
     """
     
+    index_start_warehouses = indexes[0][0]
+    index_end_warehouses = indexes[0][1]
+    index_start_clients = indexes[1][0]
+    index_end_clients = indexes[1][1]
+    
     L = [] # L is a list of lists
     # First element of L corresponds to the warehouse's data
-    l = [e.id, 0, e.lat, e.long]
+    # find the warehouse in df
+    index = -1
+    for i in range(index_start_warehouses, index_end_warehouses +1):
+        if e.lat == df["y"][i] and e.long == df["x"][i]:
+            index = i
+           
+    l = [index, 0, e.lat, e.long]
     tree_nodes = [e]+e.children
     for n in tree_nodes:
-        l.append(dist(e, n, df))
+        l.append(dist(e, n, G))
     L.append(l)
+    
+    
     # All other elements of L correspond to the clients' data
     for client in e.children:
-        l = [client.id, client.taille_colis, client.lat, client.long]
+        # find the client in df
+        index = -1
+        for i in range(index_start_clients, index_end_clients +1):
+            if client.lat == df["y"][i] and client.long == df["x"][i]:
+                index = i
+        l = [index, client.taille_colis, client.lat, client.long]
         for n in tree_nodes:
-            l.append(dist(client, n, df)) # distance from the node client to the node n
+            l.append(dist(client, n, G)) # distance from the node client to the node n
         L.append(l)
     names = ["Identifiant", "Demande", "latitude", "longitude", "entrepot"]
     tree_nodes.pop(0)
@@ -372,7 +400,7 @@ def create_graph_components(k: int):
     df, indexes = random_clients(k, df = df_warehouses)
     localisations = df.values.tolist()
     index_start_warehouses = indexes[0][0]
-    index_end_warehouses = indexes[0][1]
+    index_end_warehouses = indexes[0][1] 
     index_start_clients = indexes[1][0]
     index_end_clients = indexes[1][1]
     
@@ -384,23 +412,25 @@ def create_graph_components(k: int):
         max_vehicles = 50
         max_light = 30
         warehouses.append(Entrepot(lat, long, max_vehicles, max_light, capacity))
-
+    
     # creation of parcels
-    w = len(warehouses)
+    w = len(warehouses) 
     parcels = []
     for i in range(index_start_clients, index_end_clients + 1):
         destination = [localisations[i][0], localisations[i][1]]
         # parcel's size is random
         size = 0.01*np.random.randint(1, 100) # parcel sizes range from 10 cm^3 to 1 m^3
         random_draw = np.random.randint(0, w)
-        where_from = warehouses[random_draw]
+        where_from = warehouses[random_draw] # MODIF ICI random_draw au lieu de w
         parcels.append(Colis(size, where_from, destination))
-
         
-    return df, warehouses, parcels
+    return df, indexes, warehouses, parcels
 
 
-def dist (n1: Node, n2: Node, df = None):
+
+            
+    
+def dist (n1: Node, n2: Node, G: Graph):
     """
     Method that returns the distance between two nodes.
     If the graph is built thanks to real data, the distance returned is the one
@@ -417,11 +447,12 @@ def dist (n1: Node, n2: Node, df = None):
     :return: distance to go from n1 to n2 (oriented edge)
     :rtype: float
     """
-    if df == None: # for an example without using real data
+    if G.coords == None: # for an example without using real data
         dist = np.sqrt((n1.lat -n2.lat)**2 + (n1.long -n2.long)**2)
         
     else:
-        coords, dist_matrix, itineraries = itineraries(df, G = G_idf, critere_optim = 'length')
+        coords = G.coords
+        dist_matrix = G.matrix
         
         if isinstance(n1, Garage):
             dist = 0 
@@ -432,40 +463,41 @@ def dist (n1: Node, n2: Node, df = None):
                 if n1.lat == el[0] and n1.long == el[1]:
                     i = coords.index((n1.lat, n1.long))
                 if n2.lat == el[0] and n2.long == el[1]:
-                    j = coords.index((n1.lat, n1.long))
+                    j = coords.index((n2.lat, n2.long))
             dist = dist_matrix[i][j]
     
     return(dist)
 
+"""
 
+def trace_graph(graph):
+    G = pgv.AGraph(directed = True)
+    root = graph.garage
+    #G.add_node(root)
+    file = [root]
+    while len(file) >0:
+        if isinstance(file[0], Garage):
+            G.add_node(file[0], color = "black")
+        if isinstance(file[0], Entrepot):
+            G.add_node(file[0], color = "blue")
+        if isinstance(file[0], Client):
+            G.add_node(file[0], color = "pink")
+        for c in file[0].children:
+            if len(c.children)>0 and (file[0] in c.children):                 
+                G.add_edge(file[0], c, color = "orange", label = str(round(dist(file[0], c), 1)))
+                # G.add_edge(c, file[0], color = "orange")
 
-''' Je commente ce passage parce que cela ne marche pas sur mon ordi'''
-# def trace_graph(graph):
-#     G = pgv.AGraph(directed = True)
-#     root = graph.garage
-#     #G.add_node(root)
-#     file = [root]
-#     while len(file) >0:
-#         if isinstance(file[0], Garage):
-#             G.add_node(file[0], color = "black")
-#         if isinstance(file[0], Entrepot):
-#             G.add_node(file[0], color = "blue")
-#         if isinstance(file[0], Client):
-#             G.add_node(file[0], color = "pink")
-#         for c in file[0].children:
-#             if len(c.children)>0 and (file[0] in c.children):
-#                 G.add_edge(file[0], c, color = "orange", label = str(round(dist(file[0], c), 1)))
-#                 # G.add_edge(c, file[0], color = "orange")
-
-#             if len(c.children) > 0 and (file[0] in c.children) == False:
-#                 G.add_edge(file[0], c, color = "blue", label = str(round(dist(file[0], c), 1)))
-#                 file.append(c)
-#             if len(c.children) == 0:
-#                 G.add_edge(file[0], c, color = "blue", label = str(round(dist(file[0], c), 1)))
-#                 file.append(c)   
-#         file.pop(0)
+            if len(c.children) > 0 and (file[0] in c.children) == False:
+                G.add_edge(file[0], c, color = "blue", label = str(round(dist(file[0], c), 1)))
+                file.append(c)
+            if len(c.children) == 0:
+                G.add_edge(file[0], c, color = "blue", label = str(round(dist(file[0], c), 1)))
+                file.append(c)   
+        file.pop(0)
     
-    # G.layout(prog='dot')
-    # G.draw('file.png') 
-    # a = Image.open('file.png')
-    # a.show()
+    G.layout(prog='dot')
+    G.draw('file.png') 
+    a = Image.open('file.png')
+    a.show()
+
+"""

@@ -10,17 +10,20 @@ from warehouses_clients import *
 def nearest_nodes(df, G = G_idf):
 
     """
-    Fonction qui détermine pour chacun des points le noeud osm le plus proche
+    Find node nearest to each point of a dataframe. 
+
+    Input :
+    - df (pandas.DataFrame) : dataframe of geographical points. This dataframe must contain 
+    at least the following columns :
+        - "x" (longitudes)
+        - "y" (latitudes)
+    - G (networks.MultiDiGraph, optional): graph networkx of the area of interest. If not specified,
+    G is the graph of Ile-de-France
     
-    La fonction prend en argument:
-    - df = une dataframe pandas contenant les points géographiques qu'on 
-    cherche à relier et au moins les colonnes "x" (longitudes) et "y" (latitudes)
-    - G : le graphe osmnx de la région géographique sur laquelle on travaille. Par défaut,
-    G est le graphe du réseau routier d'Ile-de-France
-    
-    La fonction retourne :
-    - coords_list : la liste des tuples (latitude, longitude) pour chacun des points
-    - nearest_nodes_list : la liste des noeuds les plus proches
+    Output :
+    - coords_list (list) : list containing tuples (latitude, longitude) for each node
+    - nearest_nodes_list : list of osmid of the nearest nodes
+   
     """
 
     n = df.shape[0]
@@ -35,21 +38,22 @@ def nearest_nodes(df, G = G_idf):
 def itineraries(df, G = G_idf, critere_optim = 'corrected_travel_time'):
 
     """
-    Fonction qui détermine pour chaque paire de points géographiques de la
-    dataframe 
+    Find all-pairs best path (according to a given criteria)
     
-    La fonction prend en argument :
-    - df = une dataframe pandas contenant les points géographiques qu'on 
-    cherche à relier et au moins les colonnes "x" (longitudes) et "y" (latitudes)
-    - G : le graphe osmnx de la région géographique sur laquelle on travaille. Par défaut,
-    G est le graphe du réseau routier d'Ile-de-France
-    - critere : chaîne de caractère, indique le critère à optimiser pour trouver les 
-    meilleurs itineraries_dict. Par défaut, on cherche les itinéraires les plus courts
-    ("length"), mais on peut aussi chercher les itinéraires les plus rapides ("travel_time")
+    Input :
+    - df (pandas.DataFrame) : dataframe of geographical points. This dataframe must contain 
+    at least the following columns :
+        - "x" (longitudes)
+        - "y" (latitudes)
+    - G (networks.MultiDiGraph, optional): graph networkx of the area of interest. If not specified,
+    G is the graph of Ile-de-France
+    - critere_optim (string, optional) : use this edge attribute as the edge weight that must be 
+    minimized. If not specified, this attribute is 'corrected_travel_time'. Other supported options :
+    'length', 'travel_time', 
 
-    La fonction retourne :
-    - coords_list : la liste des tuples (latitude, longitude) pour chacun des points
-    - weight_array : un tableau numpy dans lequel la case [i, j] contient le "poids"
+    Output :
+    - coords_list (list) : list containing tuples (latitude, longitude) for each node
+    - weight_array (numpy.) : un tableau numpy dans lequel la case [i, j] contient le "poids"
     (distance ou temps de trajet par exemple)
     du meilleur itinéraire allant de i à j (tableau pas forcément symétrique car 
     certaines routes peuvent êtres à sens unique)

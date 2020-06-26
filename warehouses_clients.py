@@ -73,14 +73,3 @@ def random_clients(k, df = df_warehouses, G = G_idf) :
 
     return df_complete, indexes 
 
-
-    import osmnx as ox
-
-    start_time = time.time()
-    route1 = nx.shortest_path(G_idf, 288357015, 4280286175, 'corrected_travel_time')
-    print("temps :", time.time() - start_time, "secondes")
-    
-    start_time = time.time()
-    route2 = nx.dijkstra_path(G_idf, 288357015, 4280286175, 'corrected_travel_time')
-    print("temps :", time.time() - start_time, "secondes")
-

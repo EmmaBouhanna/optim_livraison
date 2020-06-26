@@ -1,5 +1,5 @@
 from __init__copy import *
-from graphe import * 
+from graphe_copy import * 
 service_time = (1/6) # 10 min lost per delivery
 time_work = 8.0 # number of work hours
 cost_dist = 1/3600 # coût par unité de temps
@@ -382,12 +382,14 @@ def simulation_vrptw(garage, truck, number_clients):
     G.make_graph()
     G.make_dist_matrix(df)
 
-    np.savetxt("./output_data_bis/corrected_travel_times_array.csv", G.matrix, delimiter=",")
+    if G.matrix is not None :
+        np.savetxt("./output_data_bis/corrected_travel_times_array.csv", G.matrix, delimiter=",")
 
-    with open('./output_data_bis/itineraries_dict.csv', 'w') as f:  
-        w = csv.DictWriter(f, G.itineraries.keys())
-        w.writeheader()
-        w.writerow(G.itineraries)
+    if G.itineraries is not None :
+        with open('./output_data_bis/itineraries_dict.csv', 'w') as f:  
+            w = csv.DictWriter(f, G.itineraries.keys())
+            w.writeheader()
+            w.writerow(G.itineraries)
 
     file_properties = generate_csv(G, df, indexes)
     vehicle_capacity= file_properties.pop()

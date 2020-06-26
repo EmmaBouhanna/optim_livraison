@@ -8,6 +8,5 @@ import os
 import random
 import csv
 from deap import tools, creator, base
-
-# import pygraphviz as pgv
-# from PIL import Image
+import pygraphviz as pgv
+from Pillow import Image
