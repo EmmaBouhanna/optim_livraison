@@ -154,6 +154,7 @@ start_time = time.time()
 route2 = nx.dijkstra_path(G_idf, 288357015, 4280286175, 'corrected_travel_time')
 print("temps :", time.time() - start_time, "secondes")
 
+
 try : 
     import pillow
     a =  12
