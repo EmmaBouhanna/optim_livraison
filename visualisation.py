@@ -7,10 +7,16 @@ from routes import *
 
 Paris_center = [48.861146, 2.345721]
 
-Lats = nx.get_node_attributes(G_idf, "y")
-Lons = nx.get_node_attributes(G_idf, "x")
-
 df_complete = pd.read_csv('./output_data_bis/df_complete.csv', usecols = ["y", "x", "name", "type", "adress"])
+
+# Dicts
+Lats_node_id = nx.get_node_attributes(G_idf, "y")
+Lons_node_id = nx.get_node_attributes(G_idf, "x")
+
+# Lists
+Lats_df_id = list(df_complete["y"])
+Lons_df_id = list(df_complete["x"])
+
 
 # Create list containing "res_entrepot_i" files
 files_list = []
@@ -21,7 +27,7 @@ if '.DS_Store' in files_list :
     files_list.remove('.DS_Store')
 
 
-# Load dict containing all-pairs itineraries (bricolage ici, à corriger)
+# Load dict containing all-pairs itineraries
 
 df_itineraries = pd.read_csv('./output_data_bis/itineraries_dict.csv', header=None)
 itineraries_dict = {}
@@ -48,14 +54,17 @@ def random_color():
 
 
 
-def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) :
+def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) : 
 
-    """Display on a map all geographical points of a dataframe and their respective
+    """
+    
+    Display on a map all geographical points of a dataframe and their respective
     nearest osm nodes.
 
     Input:
     - df (pandas.DataFrame) : dataframe 
     - my_map (folium.Map, optional) :
+
     """
 
     n = df.shape[0]
@@ -70,44 +79,51 @@ def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) :
     else :
         my_map = input_map
 
+    # All points are treated the same way
     if n_warehouses is None :
     
-        for i in range(n):
+        for k in range(n):
 
-            folium.Circle(radius=100, location=coords_list[i], color='red',
-                    fill=False).add_child(folium.Popup(f'{i}', show = True)).add_to(my_map)
+            folium.Circle(radius=100, location=coords_list[k], color='red',
+                    fill=False).add_to(my_map)
 
             folium.Circle(radius=100, 
-                    location=(Lats[nearest_nodes_list[i]], Lons[nearest_nodes_list[i]]), 
+                    location=(Lats_node_id[nearest_nodes_list[k]], Lons_node_id[nearest_nodes_list[k]]), 
                     color='blue',
-                    fill=False).add_child(folium.Popup(f'noeud {i}', show = True)).add_to(my_map)
+                    fill=False).add_to(my_map)
 
+    # Difference of display between warehouses and clients
     else : 
         
-        for i in range(n_warehouses):
+        #warehouses
+        for k in range(n_warehouses):
 
-            folium.Circle(radius=100, location=coords_list[i], color='red',
-                    fill=False).add_child(folium.Popup(f'{i}', show = True)).add_to(my_map)
+            folium.Circle(radius=100, location=coords_list[k], color='red',
+                    fill=False).add_child(folium.Popup(f'entrepot {k}', show = True)).add_to(my_map)
 
             folium.Circle(radius=100, 
-                    location=(Lats[nearest_nodes_list[i]], Lons[nearest_nodes_list[i]]), 
+                    location=(Lats_node_id[nearest_nodes_list[k]], Lons_node_id[nearest_nodes_list[k]]), 
                     color='orange',
-                    fill=False).add_child(folium.Popup(f'noeud {i}', show = True)).add_to(my_map)
-    
-        for i in range(n_warehouses, n):
+                    fill=False).add_child(folium.Popup(f'noeud entrepot {k}', show = False)).add_to(my_map)
 
-            folium.Circle(radius=100, location=coords_list[i], color='blue',
-                    fill=False).add_child(folium.Popup(f'{i}', show = True)).add_to(my_map)
+        #clients
+        for k in range(n_warehouses, n):
+
+            folium.Circle(radius=100, location=coords_list[k], color='blue',
+                    fill=False).add_child(folium.Popup(f'client {k - n_warehouses}', show = True)).add_to(my_map)
 
             folium.Circle(radius=100, 
-                    location=(Lats[nearest_nodes_list[i]], Lons[nearest_nodes_list[i]]), 
+                    location=(Lats_node_id[nearest_nodes_list[k]], Lons_node_id[nearest_nodes_list[k]]), 
                     color='green',
-                    fill=False).add_child(folium.Popup(f'noeud {i}', show = True)).add_to(my_map)
-        
+                    fill=False).add_child(folium.Popup(f'noeud client {k - n_warehouse}', show = False)).add_to(my_map)
+
     return my_map
 
 
-def visualize_travel_between_two_nodes(start, end, line_color='red', input_map=None, G=G_idf):
+
+
+def visualize_travel_between_two_nodes(start, end, line_color='red', input_map=None, G=G_idf) :
+    
     """
     Input :
     - start (int) : index (in the dataframe) of the start point 
@@ -128,10 +144,23 @@ def visualize_travel_between_two_nodes(start, end, line_color='red', input_map=N
 
     path = itineraries_dict[f'({start}, {end})']
 
+    # Draw the route
     ox.folium.plot_route_folium(G, path, route_map=my_map, tiles='Stamen Toner', 
-                            popup_attribute = "name",
+                            popup_attribute = "name", zoom = 9,
                             route_color = line_color,
-                            route_width=5, route_opacity=0.5)
+                            route_width=3, route_opacity=0.5)
+
+    # Display start point
+    folium.Circle(radius=200, 
+                location=(Lats_df_id[start], Lons_df_id[start]), 
+                color='green',
+                fill=True).add_child(folium.Popup(f'{start}', show = True)).add_to(my_map)
+
+    # Display end point
+    folium.Circle(radius=200, 
+                location=(Lats_df_id[end], Lons_df_id[end]), 
+                color='green',
+                fill=True).add_child(folium.Popup(f'{end}', show = True)).add_to(my_map)
    
     return my_map
 
@@ -166,46 +195,6 @@ def visualize_single_truck_travel(stops_list, color='red', input_map_=None, G=G_
     return my_map    
 
 
-def visualize_single_truck_travel_2(stops_list, color='red', input_map=None, G=G_idf):
-
-    #NE MARCHE PAS
-
-    """
-    Input :
-    - stops_list (list) : list of dataframe indexes of the nodes visited by the truck
-    - line_color :
-    - input_map
-    _ G : graph used to calculate itineraries
-
-    Output :
-
-    """
-
-    if input_map is None :
-        my_map = folium.Map(location = Paris_center,
-                    tiles='Stamen Toner', zoom_start = 9, control_scale=True)
-    
-    else :
-        my_map = input_map
-
-    path = []
-
-    for i in range(1, len(stops_list)):
-        start = int(stops_list[i])
-        end = int(stops_list[i-1])
-        path += itineraries_dict[f'({start}, {end})']
-        print(f"path : {path}")
-
-    print(f"path : {path}")
-
-
-    ox.folium.plot_route_folium(G, path, route_map=my_map, tiles='Stamen Toner', 
-                            popup_attribute = "name",
-                            route_color = color,
-                            route_width=5, route_opacity=0.5)    
-
-    return my_map    
-
 
 def visualize_single_warehouse_travel(res_csv, preexisting_map=None, G=G_idf) :
 
@@ -223,10 +212,8 @@ def visualize_single_warehouse_travel(res_csv, preexisting_map=None, G=G_idf) :
 
     # Display the location of the warehouse
     warehouse = int(res_df[trucks_list[0]][0])
-    lat_w = df_complete["y"][warehouse]
-    lon_w = df_complete["x"][warehouse]
-    folium.Circle(radius=300, location=(lat_w, lon_w), color='red',
-                    fill=True).add_child(folium.Popup(f'entrepot {warehouse}', show = True)).add_to(output_map)
+    folium.Circle(radius=300, location=(Lats_df_id[warehouse], Lons_df_id[warehouse]), color='red',
+                    fill=False).add_child(folium.Popup(f'entrepot {warehouse}', show = True)).add_to(output_map)
 
     for truck in trucks_list :
         truck_color = random_color()
@@ -240,19 +227,3 @@ def visualize_single_warehouse_travel(res_csv, preexisting_map=None, G=G_idf) :
                                                     input_map_=output_map, G = G_idf)
     
     return output_map
-
-"""
-
-res_df = pd.read_csv('output_data/res_entrepot_6.csv')
-res_df.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
-
-list(res_df["Camion 1"])
-
-route1 = [1.0, 2.0, 3]
-route2 = [3, 4, 5]
-route3 = [5, 6, 7]
-route4 = [7, 8, 1]
-
-route1.pop()
-
-"""

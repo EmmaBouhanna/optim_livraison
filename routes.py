@@ -71,7 +71,7 @@ def itineraries(df, G = G_idf, critere_optim = 'corrected_travel_time'):
 
     # On charge la matrice des poids et le dictionnaire des itinéraires relatifs aux entrepôts si ces données sont déjà sauvegardées
 
-    if critere_optim == 'corrected_travel_time' :
+    if G == G_idf and critere_optim == 'corrected_travel_time' :
 
         warehouses_array = np.genfromtxt('./saved_files/corrected_travel_times_array_warehouses.csv', delimiter=',')
         n_warehouses = np.shape(warehouses_array)[0]
@@ -82,7 +82,7 @@ def itineraries(df, G = G_idf, critere_optim = 'corrected_travel_time'):
 
         some_values = True
 
-    elif critere_optim == 'travel_time' :
+    elif G == G_idf and critere_optim == 'travel_time' :
 
         warehouses_array = np.genfromtxt('./saved_files/travel_times_array_warehouses.csv', delimiter=',')
         n_warehouses = np.shape(warehouses_array)[0]
@@ -93,7 +93,7 @@ def itineraries(df, G = G_idf, critere_optim = 'corrected_travel_time'):
         
         some_values = True
 
-    elif critere_optim == 'length' :
+    elif G == G_idf and critere_optim == 'length' :
 
         warehouses_array = np.genfromtxt('./saved_files/lengths_array_warehouses.csv', delimiter=',')
         n_warehouses = np.shape(warehouses_array)[0]
@@ -104,40 +104,42 @@ def itineraries(df, G = G_idf, critere_optim = 'corrected_travel_time'):
         
         some_values = True
     
-    # rajouter une sécurité pour lever les erreurs (critere inexistant)
 
     coords_list, nearest_nodes_list = nearest_nodes(df, G)
 
+
     if some_values : # weights already known for itineraries connecting warehouses
+        start_time_ = time.time()
         for i in range(n) :
-            print("boucle", i)
-            print("Temps d execution : %s secondes ---" % (time.time() - start_time))
             depart = nearest_nodes_list[i]
             for j in range(n):
                 if (i < n_warehouses and j < n_warehouses):
                     # itinerary between two warehouses
                     weight_array[i, j] = warehouses_array[i, j]
-                    #print("value already calculated")
                 else : 
                     arrivee = nearest_nodes_list[j]
                     route = nx.shortest_path(G, depart, arrivee, weight=critere_optim)
                     total_weight = int(sum(ox.utils_graph.get_route_edge_attributes(G, route, critere_optim)))
                     itineraries_dict[f'({i}, {j})'] = route, total_weight
-                    weight_array[i, j] = total_weight
-                    #print("new value")
-        print("Temps d execution total : %s secondes ---" % (time.time() - start_time))
+                    weight_array[i, j] = total_weight   
+            print(f"Boucle {i} : temps d execution : {time.time() - start_time_} secondes ---")           
 
     else :
+        start_time_ = time.time()
         for i in range(n) :
-            print("boucle", i)
-            print("Temps d execution : %s secondes ---" % (time.time() - start_time))
             depart = nearest_nodes_list[i]
             for j in range(n):
-                arrivee = nearest_nodes_list[j]
-                route = nx.shortest_path(G, depart, arrivee, weight=critere_optim)
-                total_weight = int(sum(ox.utils_graph.get_route_edge_attributes(G, route, critere_optim)))
-                itineraries_dict[f'({i}, {j})'] = route, total_weight
-                weight_array[i, j] = total_weight
-        print("Temps d execution total : %s secondes ---" % (time.time() - start_time))
+                arrivee = nearest_nodes_list[j]              
+                try :
+                    route = nx.shortest_path(G, depart, arrivee, weight=critere_optim)  
+                    total_weight = int(sum(ox.utils_graph.get_route_edge_attributes(G, route, critere_optim)))
+                    itineraries_dict[f'({i}, {j})'] = route, total_weight
+                    weight_array[i, j] = total_weight
+                except KeyError :
+                    print(f'{critere_optim} is not a valid edge attribute, please create that edge attribute using function nx.set_edge_attributes or choose another edge attribute as critere_optim')
+                    return None
+            print(f"Boucle {i} : temps d execution : {time.time() - start_time_} secondes ---")                  
+    
+    print("Temps d execution total : %s secondes ---" % (time.time() - start_time))
     
     return coords_list, weight_array, itineraries_dict

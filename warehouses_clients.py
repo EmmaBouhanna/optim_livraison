@@ -1,25 +1,13 @@
 import networkx as nx
 import random
 import pandas as pd
+import osmnx as ox
 
-
-G_idf = nx.read_gpickle("./saved_files/graph_idf.gpickle")
-
-dict_ = {}
-travel_times = nx.get_edge_attributes(G_idf, 'travel_time')
-for key, value in travel_times.items():
-    dict_[key] = value * 1.2
-
-nx.set_edge_attributes(G_idf, dict_, 'corrected_travel_time')
-
-df_nodes_idf = pd.read_csv("gdf_nodes_idf.csv", index_col="osmid", dtype = {'osmid': int, 'y': float, 'x': float})
-df_edges_idf = pd.read_csv("gdf_edges_idf_simplified.csv")
-df_nodes_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
-df_edges_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
-
+# Load graph of Ile-de-France
+G_idf = nx.read_gpickle("./saved_files/graph_idf_complete.gpickle")
 
 # Warehouses
-df_warehouses = pd.read_csv("warehouses.csv", sep=";")
+df_warehouses = pd.read_csv("warehouses_idf.csv", sep=";")
 
 # Random clients
 
@@ -41,7 +29,6 @@ def random_clients(k, df = df_warehouses, G = G_idf) :
     - G (networkx.MultiDiGraph): graph of the given area
     - df_nodes (pandas.DataFrame) : dataframe containing the nodes of G
     
-
     Output :
     - df_complete (pandas.DataFrame) : output dataframe 
     - indexes (tuple) : tuple containing :

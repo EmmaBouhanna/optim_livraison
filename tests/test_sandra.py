@@ -162,3 +162,7 @@ except ModuleNotFoundError :
     print("t'as pas ça sur ton ordi wesh")
     a = 13
 print(a)
+
+
+#df_nodes_idf = pd.read_csv("gdf_nodes_idf.csv", index_col="osmid", dtype = {'osmid': int, 'y': float, 'x': float})
+#df_nodes_idf.drop(labels = "Unnamed: 0", axis = 1, inplace = True)
