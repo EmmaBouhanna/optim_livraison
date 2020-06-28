@@ -8,7 +8,8 @@ ATTENTION : Pour exécuter ce notebook, il faut changer le path du directory et 
 ```python
 from IPython.display import Image
 import os
-os.chdir("/Users/sophierossi/Desktop/optim_livraison-master/images")
+os.chdir("C:\Didou\Pro\devoirs\Mines\Projet info S2\optim_livraison\images")
+
 ```
 
 ## Introduction
@@ -219,8 +220,8 @@ print(f"après mutation : {mut_inverse_indexes([1,2,3,4,5,6,7,8,9])}")
 ```
 
     avant mutation :[1, 2, 3, 4, 5, 6, 7, 8, 9]
-    indices d'inversion : (7, 8)
-    après mutation : ([1, 2, 3, 4, 5, 6, 7, 8, 9],)
+    indices d'inversion : (1, 6)
+    après mutation : ([1, 2, 7, 6, 5, 4, 3, 8, 9],)
     
 
 - les crossover : la fonction  en entrée deux individus et on crée deux individus à partir de ceux-ci, en croisant une séquence de chaque liste, dont les indices de début et de fin sont choisis de manière aléatoire grâce à la fonction __random.sample__ . Ainsi, si nos individus valaient [1,4,3,6,5,2] et [4,3,5,2,1,6] et que l'on tire au hasard l'indice 2 et 4, on crée deux nouveaux individus valant: [3,6,5,4,2,1] et [3,5,2,1,4,6]
@@ -258,8 +259,8 @@ print(f"après mutation : {cx_partialy_matched([1,4,3,6,5,2], [4,3,5,2,6,1])}")
 ```
 
     avant crossover :([1, 4, 3, 6, 5, 2], [4, 3, 5, 2, 6, 1])
-    les indices de début et de fin sont : (2, 5)
-    après mutation : ([3, 6, 5, 2, 4, 1], [5, 2, 6, 1, 4, 3])
+    les indices de début et de fin sont : (3, 4)
+    après mutation : ([6, 5, 4, 3, 2, 1], [2, 6, 1, 4, 3, 5])
     
 
 ##### Fonctionnement de l'algorithme
@@ -289,14 +290,234 @@ Ainsi, pour un graphe donné, il faut exécuter cette fonction pour obtenir les 
 
 ####  <font style="color:#4D1AFB"> Simulation et optimisation du réseau de livraison en région parisienne </font>
 
-Après avoir réussi à optimiser un réseau de livraison fixé, on crée une fonction __simulation_vrptw__ qui regroupe toutes nos fonctions précédentes pour simuler un réseau de livraison optimisé à partir d'une liste de clients placés aléatoirement sur la carte de l'Ile de France. A partir de cela, on reprend la classe __Graph__ et son attribut __create_graph_components__ pour créer notre réseau, que l'on exporte ensuite sous forme de fichier csv dans le dossier __input_data__.
+Après avoir réussi à optimiser un réseau de livraison fixé, on crée une fonction __simulation_vrptw__ qui regroupe toutes nos fonctions précédentes pour simuler un réseau de livraison optimisé à partir d'une liste de clients placés aléatoirement sur la carte de l'Ile de France. A partir de cela, on reprend la classe __Graph__ et son attribut __create_graph_components__ pour créer notre réseau, que l'on exporte ensuite sous forme de fichiers csv dans le dossier __input_data__, avec n fichiers où n correspond au nombre d'entrepots.
+
+
+
+
+```python
+inputdata = pd.read_csv('exemple_simul_3_input.csv')
+inputdata.drop('Unnamed: 0', 1, inplace=True)
+inputdata
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Identifiant</th>
+      <th>Demande</th>
+      <th>latitude</th>
+      <th>longitude</th>
+      <th>entrepot</th>
+      <th>client 1</th>
+      <th>client 2</th>
+      <th>client 3</th>
+      <th>client 4</th>
+      <th>client 5</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>13</td>
+      <td>0.00</td>
+      <td>48.949716</td>
+      <td>2.286061</td>
+      <td>0.0</td>
+      <td>1932.0</td>
+      <td>4358.0</td>
+      <td>1276.0</td>
+      <td>2274.0</td>
+      <td>2423.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>24</td>
+      <td>0.62</td>
+      <td>49.058459</td>
+      <td>1.930484</td>
+      <td>1925.0</td>
+      <td>0.0</td>
+      <td>5693.0</td>
+      <td>2565.0</td>
+      <td>3609.0</td>
+      <td>3694.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>35</td>
+      <td>0.12</td>
+      <td>48.821412</td>
+      <td>3.137188</td>
+      <td>4285.0</td>
+      <td>5729.0</td>
+      <td>0.0</td>
+      <td>4007.0</td>
+      <td>4015.0</td>
+      <td>3819.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>52</td>
+      <td>0.54</td>
+      <td>48.835034</td>
+      <td>2.247933</td>
+      <td>1278.0</td>
+      <td>2405.0</td>
+      <td>4015.0</td>
+      <td>0.0</td>
+      <td>2641.0</td>
+      <td>1320.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>54</td>
+      <td>0.59</td>
+      <td>49.073293</td>
+      <td>2.672739</td>
+      <td>2232.0</td>
+      <td>3677.0</td>
+      <td>4053.0</td>
+      <td>2605.0</td>
+      <td>0.0</td>
+      <td>2945.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>63</td>
+      <td>0.86</td>
+      <td>48.739799</td>
+      <td>2.397568</td>
+      <td>2413.0</td>
+      <td>3589.0</td>
+      <td>3792.0</td>
+      <td>1351.0</td>
+      <td>2921.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+La colonne identifiant permet de remonter au numéro du client tiré de notre dataframe issu de la partie 1.
 
 Ensuite, on filtre les entrepots pour lesquels il n'y a pas de colis à livrer avec la fonction __no_client_to_deliver__, puis on traite séparément le cas où il n'y a qu'un seul client à livrer avec __one_client_to_deliver__ pour ne pas lever d'exception dans notre algorithme VRPTW qui renvoie une __Value Error__ si la dataframe d'entrée ne comprend qu'un seul client à livrer...
 
 Enfin, on applique notre algorithme VRPTW et enfin, on utilise la fonction __decode_to_GPS__ pour exporter nos résulats dans le dossier __output_data__.
 
+
+```python
+Image(filename = 'simul_3.png')
+```
+
+
+
+
+![png](output_34_0.png)
+
+
+
+Ici, on a capturé la fin de l'évolution génétique du dernier entrepot, qui nous donne le meilleur individu (la meilleure liste de client triée), ensuite décodé en trajet par camion (dernière ligne de la capture d'écran). Enfin, les valeurs de la liste de listes qui est représentée à la fin de l'exécution comporte non pas les indices utilisés dans l'algorithme pour coder des clients sont décodés en leur réel numéro, exploitable par la suite dans la dernière partie. Notre algorithme a également exporté les résultats par entrepots sous la forme de fichiers csv, dont voici un exemple:
+
+
+```python
+import pandas as pd
+res_entrepot = pd.read_csv('exemple_simul_3.csv')
+res_entrepot.drop('Unnamed: 0', 1, inplace = True)
+res_entrepot
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>camion1</th>
+      <th>camion2</th>
+      <th>camion3</th>
+      <th>camion4</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>13.0</td>
+      <td>13.0</td>
+      <td>13.0</td>
+      <td>13.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>52.0</td>
+      <td>63.0</td>
+      <td>24.0</td>
+      <td>54.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>13.0</td>
+      <td>13.0</td>
+      <td>13.0</td>
+      <td>35.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>13.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+On retrouve bien les trajets prédits par l'algorithme pour chaque camions
+
 ### Quatrième Partie : Visualisation des résultats
 
+
+
+```python
+
+```
 
 
 ```python
