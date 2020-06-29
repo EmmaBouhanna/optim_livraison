@@ -11,8 +11,8 @@ df_warehouses = pd.read_csv("warehouses_idf.csv", sep=";")
 
 # Random clients
 
-def random_clients(k, df = df_warehouses, G = G_idf) :
 
+def random_clients(k, df=df_warehouses, G=G_idf):
     """
     Add a number of random geographical points (representing random clients in our project) in a given area 
     to an existing dataframe (containing warehouses in our project)
@@ -28,7 +28,7 @@ def random_clients(k, df = df_warehouses, G = G_idf) :
         - "adress" : type string 
     - G (networkx.MultiDiGraph): graph of the given area
     - df_nodes (pandas.DataFrame) : dataframe containing the nodes of G
-    
+
     Output :
     - df_complete (pandas.DataFrame) : output dataframe 
     - indexes (tuple) : tuple containing :
@@ -48,15 +48,15 @@ def random_clients(k, df = df_warehouses, G = G_idf) :
 
     for i in range(k):
         random_node = random.choice(list(G))
-        while random_node in Random_nodes :
+        while random_node in Random_nodes:
             random_node = random.choice(list(G))
         Random_nodes.append(random_node)
         lat = Lats[random_node]
         lon = Lons[random_node]
-        df_complete.loc[n_warehouses + i] = [lat, lon, f"Client {i}", None, None]
-        
+        df_complete.loc[n_warehouses + i] = [lat,
+                                             lon, f"Client {i}", None, None]
+
     index_clients = [n_warehouses, df_complete.shape[0] - 1]
     indexes = (index_warehouses, index_clients)
 
-    return df_complete, indexes 
-
+    return df_complete, indexes
