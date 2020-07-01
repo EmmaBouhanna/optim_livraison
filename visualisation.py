@@ -87,7 +87,7 @@ def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) :
             folium.Circle(radius=100, location=coords_list[k], color='red',
                     fill=False).add_to(my_map)
 
-            folium.Circle(radius=100, 
+            folium.Circle(radius=150, 
                     location=(Lats_node_id[nearest_nodes_list[k]], Lons_node_id[nearest_nodes_list[k]]), 
                     color='blue',
                     fill=False).add_to(my_map)
@@ -101,7 +101,7 @@ def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) :
             folium.Circle(radius=100, location=coords_list[k], color='red',
                     fill=False).add_child(folium.Popup(f'entrepot {k}', show = True)).add_to(my_map)
 
-            folium.Circle(radius=100, 
+            folium.Circle(radius=150, 
                     location=(Lats_node_id[nearest_nodes_list[k]], Lons_node_id[nearest_nodes_list[k]]), 
                     color='orange',
                     fill=False).add_child(folium.Popup(f'noeud entrepot {k}', show = False)).add_to(my_map)
@@ -115,7 +115,7 @@ def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) :
             folium.Circle(radius=100, 
                     location=(Lats_node_id[nearest_nodes_list[k]], Lons_node_id[nearest_nodes_list[k]]), 
                     color='green',
-                    fill=False).add_child(folium.Popup(f'noeud client {k - n_warehouse}', show = False)).add_to(my_map)
+                    fill=False).add_child(folium.Popup(f'noeud client {k - n_warehouses}', show = False)).add_to(my_map)
 
     return my_map
 
