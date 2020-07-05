@@ -2,15 +2,6 @@
 
 ## Bou Hanna Emma, Clodion Sandra, Rossi Sophie
 
-ATTENTION : Pour exécuter ce notebook, il faut changer le path du directory et mettre le votre
-
-
-```python
-from IPython.display import Image
-import os
-os.chdir("C:\Didou\Pro\devoirs\Mines\Projet info S2\optim_livraison\images")
-
-```
 
 ## Introduction
 
