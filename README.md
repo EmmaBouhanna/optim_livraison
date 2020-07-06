@@ -21,7 +21,10 @@ Le notebook **Présentation**, qui peut être visualisé sous formes de slides �
 Une version notebook de cette documentation (**Documentation.ipynb**) est disponible dans ce dépôt
 
 <br>
+
 ## Contenus du dépot git
+
+
 Ce dépot git contient tous les fichiers permettant de construire et ensuite optimiser le réseau de livraison, ainsi que des données pré-enregistrées permettant d'exécuter et tester les différentes parties du code.
 
 + Le dossier **images** contient les images permettant d'illustrer notre travail.
