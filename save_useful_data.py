@@ -6,6 +6,11 @@ import geopandas
 
 from routes import *
 
+""" 
+STEP ZERO : saving useful data to gain some time
+(see notebook 'Document complémentaire - améliorations du programme' for further detail) 
+"""
+
 
 #### ----------------------------- Graph of Ile-de-France -----------------------------
 
@@ -22,7 +27,8 @@ ox.speed.add_edge_travel_times(G_idf_0)
 # Save modified graph in gpickle format
 nx.write_gpickle(G_idf_0, "./saved_files/graph_idf_speeds_travel_times.gpickle")
 
-# Add corrected travel times
+# Add corrected travel times 
+# (see notebook 'Document complémentaire - améliorations du programme' for further detail) 
 dict_ = {}
 travel_times = nx.get_edge_attributes(G_idf_0, 'travel_time')
 for key, value in travel_times.items():

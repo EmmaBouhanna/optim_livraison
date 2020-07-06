@@ -21,7 +21,7 @@ Un réseau de livraison est un système très complexe dans lequel interagissent
 
 ### Installations et Prérequis
 
-+ Dans le fichier $__init__.py$, changer la variable PATH en mettant la votre pour pouvoir exécuter les modules implémentés dans ce projet.
++ Dans le fichier __init__.py changer la variable PATH en mettant la votre pour pouvoir exécuter les modules implémentés dans ce projet.
 + Facultatif: pour une visualisation graphique du graphe, installer pygraphviz
 
 ### Première Partie : Travail préliminaire à la construction du graphe (extraction de données, calcul des temps de trajet entre les points)
@@ -506,9 +506,6 @@ res_entrepot
 
 
 On retrouve bien les trajets prédits par l'algorithme pour chaque camions
-
-### Quatrième Partie : Visualisation des résultats
-
 
 
 ```python
