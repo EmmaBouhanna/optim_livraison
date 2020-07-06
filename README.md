@@ -33,7 +33,7 @@ Ce dépot git contient tous les fichiers permettant de construire et ensuite opt
 + Les fichiers **graphe.py, optim_gen.py, routes.py, warehouses_clients.py** sont ceux qui composent notre code. 
 + Pour les faire tourner les uns à la suite des autres il suffit d'exécuter le fichier **simulation_complete.py**. D'autres fichiers nommés ***test*** (test_first_part.py et test_build_graph.py) permettent de s'assurer que les différentes parties du code fonctionnent.
 + Il y a la possibilité d'exécuter le code à partir de fichiers sauvegardés (notamment dans le dossier saved_files) **sans utiliser la librairie osmnx**.
-+ Enfin, plusieurs fichiers ont pour but d' **expliquer notre démarche**, nos aboutissements ainsi que discuter d'améliorations potentielles (Document complémentaire - améliorations du programme.html, Documentation.ipynb, Présentation.ipynb ou html, visualisation.py).
++ Enfin, plusieurs fichiers ont pour but d' **expliquer notre démarche**, nos aboutissements ainsi que discuter d'améliorations potentielles (Document complémentaire - améliorations du programme.html, Documentation.ipynb, Présentation.ipynb ou html, output_data_bis.py, visualisation.py).
 
 
 
