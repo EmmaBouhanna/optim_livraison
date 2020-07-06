@@ -17,8 +17,11 @@ Optimisation d'un réseau de livraison
 ```python
 from IPython.display import Image
 import os
-os.chdir("/Users/sandraclodion/GitHub/optim_livraison/images")
+os.chdir("/Users/sandraclodion/GitHub/optim_livraison")
+import pandas as pd
 ```
+
+Le notebook **Présentation**, qui peut être visualisé sous formes de slides à l'aide de RISE ou en choisissant directement la version html du fichier, peut être lu avant ou en complément de ce fichier (support utilisé pour la présentation oral donc plus court, quelques visualisations supplémentaires) 
 
 ## Introduction
 
@@ -34,14 +37,19 @@ Un réseau de livraison est un système très complexe dans lequel interagissent
    Ainsi, nous choisissons de limiter notre sujet à l’optimisation du last mile delivery en Île-de-France. L’optimisation consistera essentiellement à minimiser le temps de trajet et les délais, tout en maximisant les stocks dans les camions.
 
 
+## Fichier final
+
+Le fichier exécuté pour obtenir une simulation complète est le fichier **simulation_complete.py**. Ce fichier appelle d'autres modules que nous avons créés, aussi la section suivante détaillera plus précisément les différentes parties du code complet, ce qui permettra également de visualiser où faire les modifications pour pouvoir adapter notre outil
+
 ## Réalisation du projet
 
 ### Installations et Prérequis
 
 + Dans le fichier $__init__.py$, changer la variable PATH en mettant la votre pour pouvoir exécuter les modules implémentés dans ce projet.
 
++ Les modules `osmnx` et `networkx`doivent être installé. Il faut activer l'environnement `osmnx`
 
-+ Facultatif: pour une visualisation graphique du graphe, installer pygraphviz
++ Facultatif: pour une visualisation graphique du graphe, installer `pygraphviz`
 
 ### Première Partie : Travail préliminaire à la construction du graphe (extraction de données, calcul des temps de trajet entre les points)
 
@@ -57,18 +65,9 @@ Le fichier **graph_idf.py** n'est pas appelé par l'utilisateur, cependant il a 
 
 À l'aide du module osmnx, ce fichier crée le graphe networkx du réseau routier de l'Île-de-France.
 
-#### <font color = "blue"> Mise en forme de ces données, génération de clients aléatoires (fichier <i> warehouses_clients.py </i>) : </font>
-
-##### <font style="color:#4D1AFB"> Construction du graphe osmnx de l'Île-de-France </font>
-À partir des fichiers csv suivants, que l'on convertit en geodataframes pandas : 
-- **gdf_nodes_idf.csv** qui contient les noeuds du graphe de l'Île-de-France
-- **gdf_edges_idf_simplified.csv** qui contient les arêtes du graphe de l'Île-de-France (les routes)
-
-le graphe G_idf de l'Île-de-France (type : networkx MultiDiGraph) est construit.
-
 
 ```python
-Image(filename = "graphe_idf.png", width=400)
+Image(filename = "images/graph_idf.png")
 ```
 
 
@@ -78,13 +77,18 @@ Image(filename = "graphe_idf.png", width=400)
 
 
 
+#### <font color = "blue"> Mise en forme de ces données, génération de clients aléatoires (fichier <i> warehouses_clients.py </i>) : </font>
+
+##### <font style="color:#4D1AFB"> Construction du graphe osmnx de l'Île-de-France </font>
+À partir du fichier Pickle **graph_idf_complete.gpickle**, le graphe G_idf de l'Île-de-France (type : networkx MultiDiGraph) est importé
+
 ##### <font style="color:#4D1AFB"> Conversion des données des entrepôts </font>
 
 Le fichier csv contenant les emplacements des entrepôts est converti en une dataframe pandas **df_warehouses**
 
 ##### <font style="color:#4D1AFB"> Fonction générant des clients aléatoires </font>
 
-La fonction **random_clients** ajoute à la suite d'une dataframe de points géographiques un certain nombre de points géographiques aléatoires.
+La fonction **`random_clients`** ajoute à la suite d'une dataframe de points géographiques un certain nombre de points géographiques aléatoires. (la fonction n'est pas en place)
 
 La fonction prend en entrée :
 - k : le nombre de clients qu'on veut générer aléatoirement
@@ -94,6 +98,49 @@ Cette dataframe doit contenir des colonnes "y"(latitudes) et "x"(longitudes)
 La fonction retourne :
 - df_complete : la dataframe complétée par les clients aléatoires 
 - indices : un doublet de listes d'indices : (indices des entrepôts, indices des clients)
+
+#### <font color = "blue"> Calcul des distances réelles (fichier <i> routes.py </i>) : </font>
+
+##### <font style="color:#4D1AFB"> Approximation des points géographiques par leur noeud le plus proche dans le graphe de l'Île-de-France </font>
+La fonction **`nearest_nodes`** détermine pour les points géographiques d'une dataframe le noeud du graphe **G_idf** le plus proche pour chacun de ces points. 
+
+La fonction prend en argument :
+- df (pandas.DataFrame) : La dataframe contenant les informations des points géographiques dont on cherche à approximer la position. Elle doit contenir a minima les colonnes suivantes :
+    - "x" (longitudes)
+    - "y" (latitudes)
+- G (networks.MultiDiGraph, facultatif): Le graphe networkx de la zone géographique sur laquelle on travaille. Si ce paramètre n'est pas renseigné, le graphe utilisé par défaut est celui de l'Île-de-France
+
+La fonction retourne:
+- coords_list (liste) : Liste des coordonnées de chacun des points sous forme de tuples (latitude, longitude)
+- nearest_nodes_list (liste) : Liste des identifiants osm_id des noeuds les plus proches des points géographiques
+
+##### <font style="color:#4D1AFB"> Calcul des meilleurs trajets reliant les points géographiques deux à deux </font>
+
+La fonction **`itineraries`** calcule les meilleurs trajets (selon un critère défini) reliant deux à deux les points géographiques d'une dataframe.
+
+La fonction prend en argument :
+- df (pandas.DataFrame) : La dataframe contenant les informations des points géographiques qu'on cherche à relier deux à deux par le meilleur trajet. Elle doit contenir a minima les colonnes suivantes :
+     - "x" (longitudes)
+     - "y" (latitudes)
+- G (networks.MultiDiGraph, facultatif): Le graphe networkx de la zone géographique sur laquelle on travaille. Si ce paramètre n'est pas renseigné, le graphe utilisé par défaut est celui de l'Île-de-France
+- critere_optim (string, facultatif) : Le critère utilisé pour définir la notion de meilleur trajet. S'il n'est pas précisé, la valeur par défaut utilisé est 'corrected_travel_time', le temps de trajet corrigé (voir 'Document complémentaire - améliorations du programme' pour plus de précisions sur ce critère). Ce critère doit être un attribut numérique des arêtes du graphe `G_idf`
+
+La fonction retourne :
+- coords_list (liste) : Liste des coordonnées de chacun des points sous forme de tuples (latitude, longitude)
+- weight_array (numpy.ndarray) : un tableau numpy dans lequel la case [i, j] contient le "poids" (selon critere_optim, distance ou temps de trajet par exemple) du meilleur itinéraire allant de i à j (tableau pas forcément symétrique car certaines routes peuvent être à sens unique)
+- itineraries_dict : un dictionnaire qui contient les routes :
+    - clé (string) : '(indice du départ, indice de l’arrivée)'
+    - valeur (liste) : route sous forme de liste de noeuds osm, poids de cette route
+    
+
+Problème de cette fonction : temps de calcul long 
+
++ complexité en $O(n^2)$
++ 2 secondes environ par calcul et stockage du trajet entre 2 points <br>
+    $\Rightarrow$ plus de 5h pour calculer les meilleurs trajets reliant deux à deux 100 points !!
+   
+Pour pallier ce problème, création du fichier **graphe_sans_osmnx.py**, variante du fichier **graphe.py** (voir section suivante) qui s'appuie sur des données pré-calculées grâce à la fonction `itineraries` sans appeler cette fonction directement.
+
 
 ### Deuxième Partie: Construction d’un graphe modélisant le réseau
 
@@ -155,24 +202,24 @@ Image(filename = "graphe_exemple.png")
 
 
 
-![png](output_20_0.png)
+![png](output_25_0.png)
 
 
 
 #### <font color = "blue"> A partir des données géographiques réelles </font>
 
-#### <font style="color:#4D1AFB"> Acquisition des données </font>
+##### <font style="color:#4D1AFB"> Acquisition des données </font>
 
 La méthode random_clients du fichier warehouses_clients.py permet de générer un dataframe pandas contenant les entrepots (issus du fichier csv warehouses.csv) ainsi que k clients générés aléatoirement sur l'Ile-de-France. 
 Les colonnes d'intéret du dataframe sont: latitude et longitude.
 
-#### <font style="color:#4D1AFB"> Construction du graphe </font>
+##### <font style="color:#4D1AFB"> Construction du graphe </font>
 + **Créer un Garage et un Camion**
 + Appeler la **méthode `make_graph_components`**: celle-ci construit, à partir du dataframe retourné par random_clients, une liste d'entrepots et une liste de colis (et donc de clients)
 + Appeler la **méthode `make_graph`** en passant en paramètre le garage, la liste d'entrepots, la liste de colis et le camion
 + Appeler la **méthode `make_dist_matrix(df)`** qui utilise la méthode `itineraries` qui génère la matrice des distances, ainsi que les coordonnées de chaque point et les itinéraires.
 
-#### <font style="color:#4D1AFB"> Exportation des données du graphe sous la forme de fichiers csv </font>
+##### <font style="color:#4D1AFB"> Exportation des données du graphe sous la forme de fichiers csv </font>
 La méthode `generate_csv` crée, **dans le dossier input_data, un fichier csv pour chaque entrepôt**.
 Ce fichier contient les identifiants de chaque point, leurs coordonnées (entrepôt et les clients dont les colis se trouvent dans cet entrepot), la demande de l'entrepot ainsi que les distances entre chacun des points.
 
@@ -184,7 +231,7 @@ La méthode `dist` prend en argument un Graph. Si la matrice des distances n'a p
 
 On a choisi d'implémenter un algorithme génétique pour optimiser le réseau de livraison modélisé par le graphe créé en partie 2.
 
-#### <font style="color:#4D1AFB"> Données nécessaires au bon fonctionnement de cet algorithme </font>
+#### <font style="color:blue"> Données nécessaires au bon fonctionnement de cet algorithme </font>
 L'algorithme prend comme argument d'entrée les fichiers csv créés par la méthode __generate_csv__ de la classe Graphe, ainsi que la liste renvoyée par cette méthode, qui contient le nom des entrepots ainsi que leur nombre maximum de camions et le nombre de colis à livrer dans la journée. 
 
 De plus, il faut avoir accès à l'attribut __garage.nb_camions__ de la classe Graphe pour avoir accès au nombre de camions disponibles en tout!
@@ -192,7 +239,7 @@ De plus, il faut avoir accès à l'attribut __garage.nb_camions__ de la classe G
 Nous fixons également un coût de livraison de 10min.
 Les coûts temporels dont nous disposons étant en secondes, on va attribuer un coût par unité de temps égal à 1/3600, de façon à avoir un coût en heures.
 
-#### <font style="color:#4D1AFB"> Implémentation de l'algorithme (fichier optim_gen.py) </font>
+#### <font style="color:blue"> Implémentation de l'algorithme (fichier optim_gen.py) </font>
 L'algorithme que nous avons choisi d'implémenter est un algorithme dit génétique, il repose sur les processus de sélection naturelle et d'évolution d'une population par mutations et crossovers, de génération en génération. Ainsi, il est nécessaire de bien définir notre individu pour l'adapter au problème que l'on considère, et il faut définir un nombre de générations ainsi qu'une taille de population.
 
 Nous intégrons ensuite cet algorithme ainsi que d'autres fonctions auxiliaires dans une fonction qui génère des résultats sous forme de fichier csv dans le dossier __output_data__.
@@ -202,19 +249,19 @@ On va chercher à optimiser le trajet de livraison des camions. Notre algorithme
 Pour expliquer le fonctionnement de la fonction __run_vrptw__ qui implémente l'algorithme génétique, nous nous plaçons alors dans un entrepot.
 
 
-##### Création de l'individu
+#####  <font style="color:#4D1AFB"> Création de l'individu </font>
 Les individus de notre population sont symbolisés par une liste ordonnée des clients à visiter, en concaténant les trajets de chaque camion partant de l'entrepot. Ainsi un individu [2,1,4,3] peut coder un trajet de la forme [[0,2,0],[0,1,4,0],[0,3,0]], (ici on considère donc 3 camions et 0 symbolise l'entrepot de référence). 
 
 Cette identification n'est pas unique mais la fonction __ind2route__ du fichier __optim_gen.py__ fait en sorte de décoder l'individu en une journée de travail en maximisant les heures de travail d'un travailleur (sans dépasser 8 heures par jour) et les chargements des camions et donc en minimisant le nombre de camions utilisés.
 
 Nous faisons ici au travers de cette fonction une première optimisation pour répondre aux besoin des réseaux de livraison en minimisant la pollution et le coût de salariés pour l'entrepot, en minimisant le nombre de camions utilisés.
 
-##### Définition du coût engendré par chaque individu
+#####  <font style="color:#4D1AFB"> Définition du coût engendré par chaque individu </font>
 Pour chaque individu de la population, on définit un coût correspondant au coût temporel total de l'individu, grâce aux données de coût issues de notre classe Graphe implémentée en deuxième partie. En sortie de notre fonction __evalVRPTW__, on conserve alors l'inverse de ce coût pour des raisons techniques, que l'on appelle __fitness__ et que l'on cherchera à maximiser dans notre algorithme génétique.
 
 Ce coût temporel a été choisi de façon à répondre à un besoin d'efficacité pour l'entreprise qui gère cet entrepot et également un besoin de réduction de la pollution et du temps de travail des camionneurs.
 
-##### Etapes de l'évolution
+#####  <font style="color:#4D1AFB"> Etapes de l'évolution </font>
 On définit ensuite les étapes de notre évolution : 
 
 - les mutations : on considère uniquement des inversions de nucléotides et pas d'insertion ni de suppression d'un nucléotide. En effet, il faut livrer à tous les clients une unique fois dans la journée. Notre fonction __mut_inverse_indexes__ prend en argument un individu et inverse une séquence de la liste comprise *strictement* entre deux indices sélectionnés de manière aléatoire. A titre d'exemple, on peut exécuter le code ci-dessous, extrait du fichier __optim_gen__
@@ -283,7 +330,7 @@ print(f"après mutation : {cx_partialy_matched([1,4,3,6,5,2], [4,3,5,2,6,1])}")
     après mutation : ([3, 6, 5, 2, 4, 1], [5, 2, 6, 1, 4, 3])
 
 
-##### Fonctionnement de l'algorithme
+#####  <font style="color:#4D1AFB"> Fonctionnement de l'algorithme </font>
 
 On utilise le module __deap__ et plus précisément ses attributs __create__, __base__ et __tools__.
 A l'aide du module __create__, on impose à l'algorithme de chercher à maximiser le Fitness sur chaque génération, on crée égelament un individu affecté de son fitness.
@@ -297,21 +344,241 @@ Enfin on itère notre algorithme sur plusieurs générations, en évaluant le co
 Pour qu'un tel algorithme fonctionne, il faut l'itérer sur un grand nombre de générations et sur une population de grande taille également, néanmoins pour des raisons de capacité de calcul, on se limite à une population de 50 individus et à une centaine de générations.
 Les données d'entrée de notre algorithme sont issues de la classe Graphe implémentée, qui nous fournit la demande de chaque client ainsi que les coûts temporels de voyage entre chaque points du graphe (entrepot ou client).
 
-#### <font style="color:#4D1AFB">Optimisation d'un réseau de livraison </font>
+#### <font style="color:blue">Optimisation d'un réseau de livraison </font>
 
 Après avoir créé notre algorithme génétique d'optimisation, il faut l'intégrer dans une fonction qui nous permet d'exporter des résultats utilisables sous forme d'un fichier csv, avec l'itinéraire de chaque camion sous forme de suite ordonnée de coordonnées GPS correspondant aux clients. En effet, jusqu'ici, on a travaillé uniquement avec des listes d'entiers correspondant à une attribution de numéro à chaque client, le nombre 0 étant affecté par défaut à l'entrepot, or dans la réalité, les données réellement exploitables sont des coordonnées GPS.
 
-##### Décodage de nombres en coordonnées GPS
+##### <font style="color:#4D1AFB"> Décodage de nombres en coordonnées GPS </font>
 
 On a donc besoin dans un premier temps d'une fonction qui décode nos nombres en coordonnées GPS. On avait en fait utilisé l'index du dataframe d'entrée pour numéroter nos clients de manière unique pour la journée.
 Cette fonction fait tourner notre algorithme sur chaque fichier csv correspondant à un entrepot et à l'aide des colonnes longitude et latitude du fichier d'entrée, génère les fichiers csv, dont les colonnes sont les différents camions et les lignes successives représentent l'itinéraire de chaque camion (chaque point de la ligne i correspond à un tuple contenant les coordonnées GPS du client ou de l'entrepot visité en ième place.
 
 Ainsi, pour un graphe donné, il faut exécuter cette fonction pour obtenir les résultats demandés.
 
-####  <font style="color:#4D1AFB"> Simulation et optimisation du réseau de livraison en région parisienne </font>
+#####  <font style="color:#4D1AFB"> Simulation et optimisation du réseau de livraison en région parisienne </font>
 
-Après avoir réussi à optimiser un réseau de livraison fixé, on crée une fonction __simulation_vrptw__ qui regroupe toutes nos fonctions précédentes pour simuler un réseau de livraison optimisé à partir d'une liste de clients placés aléatoirement sur la carte de l'Ile de France. A partir de cela, on reprend la classe __Graph__ et son attribut __create_graph_components__ pour créer notre réseau, que l'on exporte ensuite sous forme de fichier csv dans le dossier __input_data__.
+Après avoir réussi à optimiser un réseau de livraison fixé, on crée une fonction **`simulation_vrptw`** qui regroupe toutes nos fonctions précédentes pour simuler un réseau de livraison optimisé à partir d'une liste de clients placés aléatoirement sur la carte de l'Ile de France. A partir de cela, on reprend la classe **`Graph`** et son attribut **`create_graph_components`** pour créer notre réseau, que l'on exporte ensuite sous forme de fichiers csv dans le dossier **input_data**, avec n fichiers où n correspond au nombre d'entrepots.
 
-Ensuite, on filtre les entrepots pour lesquels il n'y a pas de colis à livrer avec la fonction __no_client_to_deliver__, puis on traite séparément le cas où il n'y a qu'un seul client à livrer avec __one_client_to_deliver__ pour ne pas lever d'exception dans notre algorithme VRPTW qui renvoie une __Value Error__ si la dataframe d'entrée ne comprend qu'un seul client à livrer...
 
-Enfin, on applique notre algorithme VRPTW et enfin, on utilise la fonction __decode_to_GPS__ pour exporter nos résulats dans le dossier __output_data__.
+```python
+inputdata = pd.read_csv('exemple_simul_3_input.csv')
+inputdata.drop('Unnamed: 0', 1, inplace=True)
+inputdata
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Identifiant</th>
+      <th>Demande</th>
+      <th>latitude</th>
+      <th>longitude</th>
+      <th>entrepot</th>
+      <th>client 1</th>
+      <th>client 2</th>
+      <th>client 3</th>
+      <th>client 4</th>
+      <th>client 5</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>13</td>
+      <td>0.00</td>
+      <td>48.949716</td>
+      <td>2.286061</td>
+      <td>0.0</td>
+      <td>1932.0</td>
+      <td>4358.0</td>
+      <td>1276.0</td>
+      <td>2274.0</td>
+      <td>2423.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>24</td>
+      <td>0.62</td>
+      <td>49.058459</td>
+      <td>1.930484</td>
+      <td>1925.0</td>
+      <td>0.0</td>
+      <td>5693.0</td>
+      <td>2565.0</td>
+      <td>3609.0</td>
+      <td>3694.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>35</td>
+      <td>0.12</td>
+      <td>48.821412</td>
+      <td>3.137188</td>
+      <td>4285.0</td>
+      <td>5729.0</td>
+      <td>0.0</td>
+      <td>4007.0</td>
+      <td>4015.0</td>
+      <td>3819.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>52</td>
+      <td>0.54</td>
+      <td>48.835034</td>
+      <td>2.247933</td>
+      <td>1278.0</td>
+      <td>2405.0</td>
+      <td>4015.0</td>
+      <td>0.0</td>
+      <td>2641.0</td>
+      <td>1320.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>54</td>
+      <td>0.59</td>
+      <td>49.073293</td>
+      <td>2.672739</td>
+      <td>2232.0</td>
+      <td>3677.0</td>
+      <td>4053.0</td>
+      <td>2605.0</td>
+      <td>0.0</td>
+      <td>2945.0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>63</td>
+      <td>0.86</td>
+      <td>48.739799</td>
+      <td>2.397568</td>
+      <td>2413.0</td>
+      <td>3589.0</td>
+      <td>3792.0</td>
+      <td>1351.0</td>
+      <td>2921.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+La colonne identifiant permet de remonter au numéro du client tiré de notre dataframe issu de la partie 1.
+
+Ensuite, on filtre les entrepots pour lesquels il n'y a pas de colis à livrer avec la fonction **`no_client_to_deliver`**, puis on traite séparément le cas où il n'y a qu'un seul client à livrer avec **`one_client_to_deliver`** pour ne pas lever d'exception dans notre algorithme VRPTW qui renvoie une **Value Error** si la dataframe d'entrée ne comprend qu'un seul client à livrer...
+
+Enfin, on applique notre algorithme VRPTW et enfin, on utilise la fonction **`decode_to_GPS`** pour exporter nos résulats dans le dossier **output_data**.
+
+
+```python
+Image(filename = 'simul_3.png')
+```
+
+
+
+
+![png](output_40_0.png)
+
+
+
+Ici, on a capturé la fin de l'évolution génétique du dernier entrepot, qui nous donne le meilleur individu (la meilleure liste de client triée), ensuite décodé en trajet par camion (dernière ligne de la capture d'écran). Enfin, les valeurs de la liste de listes qui est représentée à la fin de l'exécution comporte non pas les indices utilisés dans l'algorithme pour coder des clients sont décodés en leur réel numéro, exploitable par la suite dans la dernière partie. Notre algorithme a également exporté les résultats par entrepots sous la forme de fichiers csv, dont voici un exemple:
+
+
+```python
+res_entrepot = pd.read_csv('exemple_simul_3.csv')
+res_entrepot.drop('Unnamed: 0', 1, inplace = True)
+res_entrepot
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>camion1</th>
+      <th>camion2</th>
+      <th>camion3</th>
+      <th>camion4</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>13.0</td>
+      <td>13.0</td>
+      <td>13.0</td>
+      <td>13.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>52.0</td>
+      <td>63.0</td>
+      <td>24.0</td>
+      <td>54.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>13.0</td>
+      <td>13.0</td>
+      <td>13.0</td>
+      <td>35.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>13.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+On retrouve bien les trajets prédits par l'algorithme pour chaque camion.
+
+### Partie supplémentaire : Module de visualisation
+
+Un module de visualisation (fichier **visualisation.py**) a été créé pour visualiser les résultats des fonctions **`nearest_nodes`** et **`simulation_vrptw`** sur des cartes folium.
+
+Le module `folium` doit être installé pour pouvoir visualiser ces cartes
+
+Des exemples d'utilisation des fonctions de ce module peuvent être trouvées dans le notebook **Présentation**

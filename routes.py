@@ -6,11 +6,12 @@ import time
 from warehouses_clients import *
 
 """
-FIRST STEP : 
+FIRST STEP : Calculating best routes between all-pairs of geographical points of interest
 
 """
 
 def nearest_nodes(df, G=G_idf):
+    
     """
     Find node nearest to each point of a dataframe. 
 
@@ -23,7 +24,7 @@ def nearest_nodes(df, G=G_idf):
     G is the graph of Ile-de-France
 
     Output :
-    - coords_list (list) : list containing tuples (latitude, longitude) for each node
+    - coords_list (list) : list containing tuples (latitude, longitude) for each exact geographical point
     - nearest_nodes_list : list of osmid of the nearest nodes
 
     """
@@ -54,16 +55,14 @@ def itineraries(df, G=G_idf, critere_optim='corrected_travel_time'):
 
     Output :
     - coords_list (list) : list containing tuples (latitude, longitude) for each node
-    - weight_array (numpy.ndarray) : un tableau numpy dans lequel la case [i, j] contient le "poids"
-    (distance ou temps de trajet par exemple)
-    du meilleur itinéraire allant de i à j (tableau pas forcément symétrique car 
-    certaines routes peuvent êtres à sens unique)
-    - itineraries_dict : un dictionnaire qui contient les routes :
-        -> clé (string) : '(indice du départ, indice de l’arrivée)'
-        -> valeur (list) : route sous forme de liste de osm nodes, poids de cette route
+    - weight_array (numpy.ndarray) : cell [i, j] is the "weight" (length or travel time for instance)
+   of the best route from i to j. This matrix may not be symmetrical because there might be some one-way streets
+    - itineraries_dict : dictionaries containing the best routes :
+        -> key(string) : '(start index, end index)' (index in the dataframe)
+        -> value (list) : (route as a list of osm nodes, weight of this route)
     """
 
-    # On mesure le temps d'exécution de la fonction
+    # Get time of the program's execution
     start_time = time.time()
 
     n = df.shape[0]
@@ -71,7 +70,7 @@ def itineraries(df, G=G_idf, critere_optim='corrected_travel_time'):
     itineraries_dict = {}
     some_values = False
 
-    # On charge la matrice des poids et le dictionnaire des itinéraires relatifs aux entrepôts si ces données sont déjà sauvegardées
+    # Load weight matrix and itineraries dictionary of routes between warehouses if these data have been saved earlier
 
     if G == G_idf and critere_optim == 'corrected_travel_time':
 
