@@ -11,8 +11,8 @@ df_warehouses = pd.read_csv("warehouses_idf.csv", sep=";")
 
 # Random clients
 
-
 def random_clients(k, df=df_warehouses, G=G_idf):
+    
     """
     Add a number of random geographical points (representing random clients in our project) in a given area 
     to an existing dataframe (containing warehouses in our project)

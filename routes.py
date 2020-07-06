@@ -5,6 +5,10 @@ import time
 
 from warehouses_clients import *
 
+"""
+FIRST STEP : 
+
+"""
 
 def nearest_nodes(df, G=G_idf):
     """

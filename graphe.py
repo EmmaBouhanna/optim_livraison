@@ -2,6 +2,7 @@ from __init__copy import *
 from warehouses_clients import *
 from routes import *
 import pandas as pd
+
 """
 SECOND STEP: Building a graph containing all the information about warehouses,
 parcels and clients

@@ -1,3 +1,5 @@
+
+
 import os
 import folium
 import pandas as pd
@@ -5,15 +7,25 @@ import osmnx as ox
 
 from routes import *
 
+"""
+This module contains functions to visualize the results of the algorithm
+on folium maps.
+"""
+
+# Coordinates of Paris' center
 Paris_center = [48.861146, 2.345721]
 
-df_complete = pd.read_csv('./output_data_bis/df_complete.csv', usecols = ["y", "x", "name", "type", "adress"])
+# Load result dataframe containing warehouses and clients
+df_complete = pd.read_csv('./output_data_bis/df_complete.csv', 
+usecols = ["y", "x", "name", "type", "adress"])
 
-# Dicts
+# Dictionaries of latitudes and longitudes 
+# key : osmid (int) ; value : latitude or longitude (float)
 Lats_node_id = nx.get_node_attributes(G_idf, "y")
 Lons_node_id = nx.get_node_attributes(G_idf, "x")
 
-# Lists
+# Lists of latitudes and longitudes 
+# sorted by index of the dataframe containing warehouses and clients (df_complete)
 Lats_df_id = list(df_complete["y"])
 Lons_df_id = list(df_complete["x"])
 
@@ -27,28 +39,27 @@ if '.DS_Store' in files_list :
     files_list.remove('.DS_Store')
 
 
-# Load dict containing all-pairs itineraries
+# Load dictionary containing all-pairs itineraries
 
 df_itineraries = pd.read_csv('./output_data_bis/itineraries_dict.csv', header=None)
 itineraries_dict = {}
 
 for i in range(df_itineraries.shape[1]) :
-
-    # partie suivante c'est du bricolage parce qu'on a sauvegardé le dictionnaire
-    # et que toutes les valeurs sont devenues des chaînes de caractères
+    # pre-treating data because the dictionary was saved as several strings
     cleaned_ = df_itineraries[i][1].split('[')[1]
     cleaned_ = cleaned_.split(']')[0]
-    # à ce stade on a une chaîne de caractère qui contient tous les identifiants
-    # des noeuds de la route
     route = cleaned_.split(', ')
     for j in range(len(route)) :
         route[j] = int(route[j])
-    # route est la liste des identifiants des noeuds de la route
     itineraries_dict[df_itineraries[i][0]] = route
 
 
 
 def random_color():
+
+    """
+    Return a random rgb color code
+    """
     levels = range(32,256,32)
     return f"rgb{tuple(random.choice(levels) for _ in range(3))}"
 
@@ -57,14 +68,16 @@ def random_color():
 def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) : 
 
     """
-    
     Display on a map all geographical points of a dataframe and their respective
     nearest osm nodes.
 
     Input:
     - df (pandas.DataFrame) : dataframe 
-    - my_map (folium.Map, optional) :
+    - my_map (folium.Map, optional) : if specified, the geographical points and nodes
+    will be displayed on this pre-existing map
 
+    Output :
+    - my_map (folium.Map) : a map displaying the geographical points and nearest nodes
     """
 
     n = df.shape[0]
@@ -79,7 +92,7 @@ def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) :
     else :
         my_map = input_map
 
-    # All points are treated the same way
+    # All points are treated the same way if the number of warehouses is not specified
     if n_warehouses is None :
     
         for k in range(n):
@@ -92,7 +105,7 @@ def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) :
                     color='blue',
                     fill=False).add_to(my_map)
 
-    # Difference of display between warehouses and clients
+    # Difference of display between warehouses and clients if the number of warehouses is specified
     else : 
         
         #warehouses
@@ -112,7 +125,7 @@ def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) :
             folium.Circle(radius=100, location=coords_list[k], color='blue',
                     fill=False).add_child(folium.Popup(f'client {k - n_warehouses}', show = True)).add_to(my_map)
 
-            folium.Circle(radius=100, 
+            folium.Circle(radius=150, 
                     location=(Lats_node_id[nearest_nodes_list[k]], Lons_node_id[nearest_nodes_list[k]]), 
                     color='green',
                     fill=False).add_child(folium.Popup(f'noeud client {k - n_warehouses}', show = False)).add_to(my_map)
@@ -125,14 +138,18 @@ def visualize_nearest_nodes(df, input_map = None, n_warehouses=None) :
 def visualize_travel_between_two_nodes(start, end, line_color='red', input_map=None, G=G_idf) :
     
     """
+    Draw the path between two nodes on a folium map
+
     Input :
     - start (int) : index (in the dataframe) of the start point 
     - end (int) : index (in the dataframe) of the start point 
-    - line_color (str)
-    - input_map (folium.Map)
+    - line_color (str) : color used to draw the path
+    - input_map (folium.Map) : if specified, the path will be drawn on this pre-existing map
+    - G (networkx.MultiDiGraph) : the graph that has been used to calculate the routes
 
     Output :
-    - my_map (folium.Map)
+    - my_map (folium.Map) : a map on which the path is drawn
+    
     """
 
     if input_map is None :
@@ -148,7 +165,7 @@ def visualize_travel_between_two_nodes(start, end, line_color='red', input_map=N
     ox.folium.plot_route_folium(G, path, route_map=my_map, tiles='Stamen Toner', 
                             popup_attribute = "name", zoom = 9,
                             route_color = line_color,
-                            route_width=3, route_opacity=0.5)
+                            route_width=7, route_opacity=0.7)
 
     # Display start point
     folium.Circle(radius=200, 
@@ -169,13 +186,17 @@ def visualize_travel_between_two_nodes(start, end, line_color='red', input_map=N
 def visualize_single_truck_travel(stops_list, color='red', input_map_=None, G=G_idf):
 
     """
+    Draw the itinerary of a truck on a folium map
+
     Input :
     - stops_list (list) : list of dataframe indexes of the nodes visited by the truck
-    - line_color :
-    - input_map
-    _ G : graph used to calculate itineraries
+    - line_color : color used to draw the path
+    - input_map : if specified, the path will be drawn on this pre-existing map
+    - G (networkx.MultiDiGraph) : the graph that has been used to calculate the routes
 
     Output :
+    - my_map : a map on which the route of the truck is drawn. The different stops are 
+    indicated by pop-ups
 
     """
 
@@ -198,6 +219,20 @@ def visualize_single_truck_travel(stops_list, color='red', input_map_=None, G=G_
 
 def visualize_single_warehouse_travel(res_csv, preexisting_map=None, G=G_idf) :
 
+    """
+    Draw the itineraries of all trucks from a warehouse on a folium map
+
+    Input :
+    - res_csv : the csv file containing paths of all trucks for a single warehouse.
+    Available files can be found in files_list
+    - preexisting_map (folium.Map) : if specified, the paths will be drawn on this pre-existing map
+    - G (networkx.MultiDiGraph) : the graph that has been used to calculate the routes
+
+    Output :
+    - my_map (folium.Map) : a map on which the paths are drawn. A different color is used for each truck
+    
+    """
+
     if preexisting_map is None :
         output_map = folium.Map(location = Paris_center,
                     tiles='Stamen Toner', zoom_start = 9, control_scale=True)
@@ -216,6 +251,7 @@ def visualize_single_warehouse_travel(res_csv, preexisting_map=None, G=G_idf) :
                     fill=False).add_child(folium.Popup(f'entrepot {warehouse}', show = True)).add_to(output_map)
 
     for truck in trucks_list :
+        # a different color for each truck
         truck_color = random_color()
         stops_list = []
         for stop in list(res_df[truck]) :
