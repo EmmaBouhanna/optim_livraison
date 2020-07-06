@@ -14,6 +14,8 @@ Optimisation d'un réseau de livraison
 <br>
 <br>
 
+**IMPORTANT** : Certains fichiers sont trop lourds pour être partagés via Github. Aussi, après avoir téléchargé ce dépôt, veuillez télécharger les fichiers disponibles sur <a href = "https://drive.google.com/drive/folders/1zrkW-nfkSNBPLAcPnjo_AYuw2AVZWnN6?usp=sharing"> ce lien </a> (surtout le fichier `graph_idf_complete.gpickle`, les autres ne sont pas indispensables) et ajoutez-les au répertoire **saved_files** 
+
 Le notebook **Présentation**, qui peut être visualisé sous formes de slides à l'aide de RISE ou en choisissant directement la version html du fichier, peut être lu avant ou en complément de ce fichier (support utilisé pour la présentation oral donc plus court, quelques visualisations supplémentaires) 
 
 Une version notebook de cette documentation (**Documentation.ipynb**) est disponible dans ce dépôt
