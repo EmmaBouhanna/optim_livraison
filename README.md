@@ -78,7 +78,7 @@ La fonction retourne :
 Le graphe visant à modéliser notre réseau de livraison est composé de trois générations:
 + La racine est le **garage**
 + Les enfants du garage sont les **entrepôts**
-+ Les enfants d’un entrepôt sont les **clients** dont le colis est localisé dans cet entrepôt
++ Les enfants d’un entrepôt sont les **clients** dont le colis est localisé dans cet entrepôt.
 
 Les aretes sont:
 + **orientées** : du garage vers l'entrepot (on n'autorise pas à retourner au garage dans la journée) et de l'entrepot vers les clients (de meme, les camions passent une seule fois par l'entrepot par jour)
@@ -107,16 +107,17 @@ Notre algorithme utilise pour le moment des camions, représentés par la classe
 ##### <font style="color:#4D1AFB"> La classe Graph</font>
 La classe Graph permet de créer un graphe à 3 générations à partir des différents noeuds:
 Un **Graph** prend en entrée:
-+ un **Garage** qui sera la racine
-+ une **liste d'Entrepot**: qui sont les enfants du garage
-+ une **liste de Clients**: les clients qui ont commandé un colis, et sont les enfants des entrepots. Les enfants d'un meme entrepot sont enfants entre eux car con veut pouvoir, a priori, aller de l’un à l’autre pour ensuite optimiser les trajets.
++ un **Garage**
++ une **liste d'Entrepot**
++ une **liste de Clients**
++ un **Camion**
 
 La méthode make_graph construit le graphe à partir des ces données.
 
 La distance entre deux noeuds peut etre approximée en prenant la **distance euclidienne**. 
 Mais, lorsqu'on veut optimiser un réseau de livraison, **il vaut mieux réfléchir en termes de distance effective parcourue le long des routes, ou en temps de trajet**. C'est ce que l'on utilisera par la suite, lorsqu'on construit le graphe à partir de données géographiques réelles.
 
-Une **visualisation schématique** du graphe peut etre obtenue avec la méthode trace_graph (qui requiert l'insrallation de pygraphviz) . Voici, à titre illustratif, un exemple de graphe. 
+Une **visualisation schématique** du graphe peut etre obtenue avec la méthode trace_graph (qui requiert l'installation de pygraphviz) . Voici, à titre illustratif, un exemple de graphe. 
 
 <ins> NB: </ins> Afin d'etre lisible, il vaut mieux ne pas avoir un très grand nombre de noeuds.
 
@@ -143,16 +144,16 @@ Les colonnes d'intéret du dataframe sont: latitude et longitude.
 + **Créer un Garage et un Camion**
 + Appeler la **méthode make_graph_components**: celle-ci construit, à partir du dataframe retourné par random_clients, une liste d'entrepots et une liste de colis (et donc de clients).
 + Appeler la **méthode make_graph** en passant en paramètre le garage, la liste d'entrepots, la liste de colis et le camion. On obtient la structure du graphe à 3 générations.
-+  Appeler la méthode make_dist_matrix(df) qui utilise la méthode itineraries qui génère la matrice des distances, ainsi que les coordonnées de chaque point et les itinéraires.
++  Appeler la méthode **make_dist_matrix(df) ** qui utilise la méthode itineraries qui génère la matrice des distances, ainsi que les coordonnées de chaque point et les itinéraires.
 
 
 #### <font style="color:#4D1AFB"> Exportation des données du graphe sous la forme de fichiers csv </font>
-La méthode genrate_csv crée, **dans le dossier input_data, un fichier csv pour chaque entrepot**.
+La méthode **genrate_csv** crée, **dans le dossier input_data, un fichier csv pour chaque entrepot**.
 Ce fichier contient les identifiants de chaque point, leurs coordonnées (entrepot et les clients dont les colis se trouvent dans cet entrepot), la demande de l'entrepot ainsi que les distances entre chacun des points.
 
-Cette méthode fait appel à la méthode csv_entrepot qui génère le fichier csv décrit ci-dessus pour un entrepot en particulier. C'est dans cette méthode que l'on appelle la méthode dist qui calcule la distance entre deux noeuds.
+Cette méthode fait appel à la méthode **csv_entrepot** qui génère le fichier csv décrit ci-dessus pour un entrepot en particulier. C'est dans cette méthode que l'on appelle la méthode **dist** qui calcule la distance entre deux noeuds.
 
-La méthode dist prend en argument un Graph. Si la matrice des distances n'a pas été créée, la distance retournée est égale à la distance euclidienne. Sinon, la méthode utilise la **matrice des distances** créée à partir de la méthode itinerariese et passée en attribut du Graph. La distance réelle (en termes de temps de trajet ou de longueur du trajet) est alors renvoyée.
+La méthode **dist** prend en argument un Graph. Si la matrice des distances n'a pas été créée, la distance retournée est égale à la **distance euclidienne**. Sinon, la méthode utilise la **matrice des distances** créée à partir de la méthode itinerariese et passée en attribut du Graph. La **distance réelle** (en termes de temps de trajet ou de longueur du trajet) est alors renvoyée.
 
 
 ### Troisième Partie : Mise en place d'un algorithme d'optimisation génétique
