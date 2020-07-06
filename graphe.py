@@ -227,12 +227,14 @@ class Graph:
     3. Clients
     
     How to build the graph thanks to the data collected during the first step 
-    (an example is given in the test file):
-    1. call the function create_graph_components
-    2. call the function make_graph
-    3. if you want to see a schematic representation of the graph, call 
+    (an example is given in test_build_graph.py):
+    0. Build a Garage and a Camion
+    1. Call the function create_graph_components
+    2. Call the function make_graph
+    3. If you want to see a schematic representation of the graph, call 
     trace_graph
-    4. call generate_csv to transform the graph into a csv file to be used in 
+    4. Call the method make_dist_matrix(df)
+    5. Call generate_csv to transform the graph into a csv file to be used in 
     the third step
     """
     
@@ -248,6 +250,12 @@ class Graph:
         :type camions: list of Camion (Vehicle)
         :attribute k: number of clients
         :type k: int
+        :attribute matrix: matrix of distances between all points of the graph
+        :type matrix: np.array()
+        :attribute coords: coordinates of all points of the dataframe
+        :type coords: list containing tuples (latitude, longitude) for each node
+        :attribute itineraries: dictionnary that contains all itineraries
+        :type itineraries: dict
         """
         self.garage = garage #la racine 
         self.entrepots = entrepots # liste des entrepots (fixée)
@@ -282,6 +290,15 @@ class Graph:
                         p.client.new_child(pp.client)
         
     def make_dist_matrix(self, df = None):
+        """
+        Class method used to build a distance matrix, corresponding to the real distances between 2
+        geographical points.
+        It calls the method itineraries that returns all the elements useful when we build a graph from
+        real data.
+        
+        :param df: dataframe contraining all elements of the graph
+        :type df: pd.DataFrame
+        """
         if self.matrix == None:
             coords, dist_matrix, itineraries_dict = itineraries(df, G = G_idf, critere_optim = "corrected_travel_time")
             self.matrix = dist_matrix
@@ -296,7 +313,9 @@ def generate_csv(G : Graph, df = None, indexes = None):
     for each warehouse thanks to the method csv_entrepot.
     The method also stores the number of trucks that leave the garage as 
     well as the number of clients to be delivered.
-    
+
+    :param G: graph that has to be "converted" to csv
+    :type G: Graph
     :param df: dataframe to get the true distance
     :type df: pandas dataframe
     
@@ -326,13 +345,17 @@ def csv_entrepot(e, numero: int, G : Graph, df = None, indexes = None):
     2. rows: [warehouse, client_1, ..., client_k]
     3. For i in [0, k] and j in [4, 4+k], the cell [i, j] gives the distance 
     to go from the node i to the node j
-    
+
     :param e: warehouse
     :type e: Warehouse (Node)
     :param numero: number of the warehouse (used in generate_csv)
     :type numero: int
+    :param G: graph that has to be "converted" to csv
+    :type G: Graph
     :param df: dataframe to get the true distance
     :type df: pandas dataframe
+    :param indexes: gives the indexes of start and end of warehouses and clients in the dataframe
+    :type indexes: list of list
     
     :return: csv file in the folder "input_data"
     """
@@ -393,8 +416,8 @@ def create_graph_components(k: int):
     :param k: number of parcels
     :type k: int
     
-    :return: dataframe, warehouses and parcels
-    :rtype: dataframe pandas, [Entrepot], [Colis]
+    :return: dataframe, indexes, warehouses and parcels
+    :rtype: dataframe pandas, list of list, [Entrepot], [Colis]
     """
     df, indexes = random_clients(k, df = df_warehouses)
     localisations = df.values.tolist()
@@ -469,7 +492,10 @@ def dist (n1: Node, n2: Node, G: Graph):
 
 
 
-''' Je commente ce passage parce que cela ne marche pas sur mon ordi'''
+'''
+Uncomment this section if you want to have a schematic visaulization of the graph.
+In order for this method to work, pygraphviz needs top be installed.
+'''
 # def trace_graph(graph):
 #     G = pgv.AGraph(directed = True)
 #     root = graph.garage
