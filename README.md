@@ -96,7 +96,7 @@ Les classes qui **héritent de Node** sont:
 + **Colis**: n'a pas de coordonnées mais à la place une destination (les coordonnées du client correspondant), une taille et un entrepot d'origine
 + **Client**: si nécessaire, on peut ajouter la taille de son colis
 
-<ins> NB:</ins> Dans notre implémentation, nous construisons toujours les clients à partir des colis (grace à la méthode make_graph), ce qui peut sembler redondant. Or, pour le moment, nous n'autorisons qu'un seul colis par client. De futurs développements amèneraient à considérer des clients commandant plusieurs colis d'où la nécessité de décorréler le colis de son client, et de créer des identifiants uniques pour chaque élément du graphe.
+<ins> NB:</ins> Dans notre implémentation, nous construisons toujours les clients à partir des colis (grace à la méthode make_graph), ce qui peut sembler redondant. Or, pour le moment, nous n'autorisons qu'un seul colis par client. De futurs développements amèneraient à considérer des clients commandant plusieurs colis d'où la nécessité de décorréler le colis de son client, et de créer des identifiants uniques pour chaque élément du graphe. De plus, idée est que le colis va etre amené à se déplacer le long du graphe et donc ne peut pas représenter un noeud stable à proprement dire.
 
 ##### <font style="color:#4D1AFB"> La classe Vehicule</font>
 La classe Vehicule est une classe générique pour représenter les différents véhicules et garder en mémoire leurs caractéristiques: capacité de stockage, pollution (bonus ou malus selon l'empreinte carbone du véhicule), distance maximale parcourue en un plein, possibilité de passer par une route étroite ou non, le temps de parcours du conducteur (la journée du travailleur est de 7h par exemple).
@@ -105,18 +105,20 @@ Notre algorithme utilise pour le moment des camions, représentés par la classe
 
 
 ##### <font style="color:#4D1AFB"> La classe Graph</font>
-La classe Graph permet de créer un graphe à 3 générations à partir des différents noeuds et selon les règles explicitées dans le premier paragraphe ci-dessus.
+La classe Graph permet de créer un graphe à 3 générations à partir des différents noeuds:
 Un **Graph** prend en entrée:
 + un **Garage** qui sera la racine
-+ une **liste d'Entrepot**
-+ une **liste de Colis**
++ une **liste d'Entrepot**: qui sont les enfants du garage
++ une **liste de Clients**: les clients qui ont commandé un colis, et sont les enfants des entrepots. Les enfants d'un meme entrepot sont enfants entre eux car con veut pouvoir, a priori, aller de l’un à l’autre pour ensuite optimiser les trajets.
 
 La méthode make_graph construit le graphe à partir des ces données.
 
 La distance entre deux noeuds peut etre approximée en prenant la **distance euclidienne**. 
 Mais, lorsqu'on veut optimiser un réseau de livraison, **il vaut mieux réfléchir en termes de distance effective parcourue le long des routes, ou en temps de trajet**. C'est ce que l'on utilisera par la suite, lorsqu'on construit le graphe à partir de données géographiques réelles.
 
-Une **visualisation schématique** du graphe peut etre obtenue avec la méthode trace_graph (afin d'etre lisible il vaut mieux ne pas avoir un très grand nombre de noeuds. Voici, à titre illustratif, un exemple de graphe. 
+Une **visualisation schématique** du graphe peut etre obtenue avec la méthode trace_graph (qui requiert l'insrallation de pygraphviz) . Voici, à titre illustratif, un exemple de graphe. 
+
+<ins> NB: </ins> Afin d'etre lisible, il vaut mieux ne pas avoir un très grand nombre de noeuds.
 
 
 ```python
@@ -139,8 +141,10 @@ Les colonnes d'intéret du dataframe sont: latitude et longitude.
 
 #### <font style="color:#4D1AFB"> Construction du graphe </font>
 + **Créer un Garage et un Camion**
-+ Appeler la **méthode make_graph_components**: celle-ci construit, à partir du dataframe retourné par random_clients, une liste d'entrepots et une liste de colis (et donc de clients)
-+ Appeler la **méthode make_graph** en passant en paramètre le garage, la liste d'entrepots, la liste de colis et le camion
++ Appeler la **méthode make_graph_components**: celle-ci construit, à partir du dataframe retourné par random_clients, une liste d'entrepots et une liste de colis (et donc de clients).
++ Appeler la **méthode make_graph** en passant en paramètre le garage, la liste d'entrepots, la liste de colis et le camion. On obtient la structure du graphe à 3 générations.
++  Appeler la méthode make_dist_matrix(df) qui utilise la méthode itineraries qui génère la matrice des distances, ainsi que les coordonnées de chaque point et les itinéraires.
+
 
 #### <font style="color:#4D1AFB"> Exportation des données du graphe sous la forme de fichiers csv </font>
 La méthode genrate_csv crée, **dans le dossier input_data, un fichier csv pour chaque entrepot**.
@@ -148,7 +152,7 @@ Ce fichier contient les identifiants de chaque point, leurs coordonnées (entrep
 
 Cette méthode fait appel à la méthode csv_entrepot qui génère le fichier csv décrit ci-dessus pour un entrepot en particulier. C'est dans cette méthode que l'on appelle la méthode dist qui calcule la distance entre deux noeuds.
 
-La méthode dist prend en argument un dataframe df qui vaut None par défaut. Dans ce cas, la distance retournée est égale à la distance euclidienne. Sinon, la méthode fait appel à la méthode itineraries du fichier routes.py: celle-ci renvoie une **matrice des distances** entre les points, générée grace à la librairie osmnx. La distance réelle (en termes de temps de trajet ou de longueur du trajet) est alors renvoyée.
+La méthode dist prend en argument un Graph. Si la matrice des distances n'a pas été créée, la distance retournée est égale à la distance euclidienne. Sinon, la méthode utilise la **matrice des distances** créée à partir de la méthode itinerariese et passée en attribut du Graph. La distance réelle (en termes de temps de trajet ou de longueur du trajet) est alors renvoyée.
 
 
 ### Troisième Partie : Mise en place d'un algorithme d'optimisation génétique
